@@ -1,11 +1,18 @@
 # [rclone](https://github.com/firepress-org/rclone-in-docker)
 
-- rclone in a docker container using CI (continuous integration)
-- it builds everyday
-- it builds from go source
-- it use multi-stage
-- it use alpine
-- it run as non-root
+rclone in a docker container using CI (continuous integration)
+
+**It features**:
+
+- it builds **everyday** and every commits
+- it builds from **go source**
+- it uses **multi-stage**
+- it uses **alpine** as final image
+- it runs as **non-root**
+- the app runs under **tiny**
+- it push 4 **tags** on docker hub
+- best practice **labels**
+- it compress the app with **UPX**
 
 ## [About rclone](https://github.com/rclone/rclone/)
 [<img src="https://rclone.org/img/logo_on_light__horizontal_color.svg" width="50%" alt="rclone logo">](https://rclone.org/)
@@ -13,17 +20,8 @@
 [Website](https://rclone.org) |
 [Documentation](https://rclone.org/docs/) |
 [Download](https://rclone.org/downloads/) | 
-[Contributing](CONTRIBUTING.md) |
-[Changelog](https://rclone.org/changelog/) |
 [Installation](https://rclone.org/install/) |
 [Forum](https://forum.rclone.org/)
-
-[![Build Status](https://travis-ci.org/rclone/rclone.svg?branch=master)](https://travis-ci.org/rclone/rclone)
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/rclone/rclone?branch=master&passingText=windows%20-%20ok&svg=true)](https://ci.appveyor.com/project/rclone/rclone)
-[![Build Status](https://dev.azure.com/rclone/rclone/_apis/build/status/rclone.rclone?branchName=master)](https://dev.azure.com/rclone/rclone/_build/latest?definitionId=2&branchName=master)
-[![CircleCI](https://circleci.com/gh/rclone/rclone/tree/master.svg?style=svg)](https://circleci.com/gh/rclone/rclone/tree/master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/rclone/rclone)](https://goreportcard.com/report/github.com/rclone/rclone)
-[![GoDoc](https://godoc.org/github.com/rclone/rclone?status.svg)](https://godoc.org/github.com/rclone/rclone) 
 
 Rclone *("rsync for cloud storage")* is a command line program to sync files and directories to and from different cloud storage providers.
 
