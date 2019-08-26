@@ -42,7 +42,7 @@ ENV APP_NAME="${APP_NAME}"
 ENV VERSION="${VERSION}"
 ENV GIT_REPO="${GIT_REPO}"
 ENV ALPINE_VERSION="{ALPINE_VERSION}"
-ENV CREATED_DATE="$(date -d "-4 hours" "+%Y-%m-%d_%HH%Ms%S")"
+ENV CREATED_DATE="$(date "+%Y-%m-%d_%HH%Ms%S")"
 ENV SOURCE_COMMIT="$(git rev-parse --short HEAD)"
 
 # Best practice credit: https://github.com/opencontainers/image-spec/blob/master/annotations.md
