@@ -2,6 +2,8 @@ ARG APP_NAME="rclone"
 ARG VERSION="1.49.0"
 ARG GIT_REPO="https://github.com/rclone/rclone/releases/download"
 ARG ALPINE_VERSION="3.10"
+ARG CREATED_DATE="$(date -d "-4 hours" "+%Y-%m-%d_%HH%Ms%S")"
+ARG SOURCE_COMMIT="$(git rev-parse --short HEAD)"
 
 # --- BUILDER GO -------------------------------
 FROM golang:alpine${ALPINE_VERSION} AS gobuilder
@@ -44,8 +46,8 @@ ENV APP_NAME="${APP_NAME}"
 ENV VERSION="${VERSION}"
 ENV GIT_REPO="${GIT_REPO}"
 ENV ALPINE_VERSION="{ALPINE_VERSION}"
-ENV CREATED_DATE="$(date)"
-ENV SOURCE_COMMIT="$(git rev-parse --short HEAD)"
+ENV CREATED_DATE="{CREATED_DATE}"
+ENV SOURCE_COMMIT="{SOURCE_COMMIT}"
 
 # Best practice credit: https://github.com/opencontainers/image-spec/blob/master/annotations.md
 LABEL org.opencontainers.image.title="${APP_NAME}"                                              \
