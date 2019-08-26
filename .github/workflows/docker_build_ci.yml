@@ -53,12 +53,17 @@ jobs:
           docker build --file Dockerfile --tag $(cat TAG_STABLE) .
           docker build --file Dockerfile --tag $(cat TAG_LATEST) .
 
-      - name: D) Test docker image
+      - name: D) Test / official docker tests
         run: |
           git clone https://github.com/docker-library/official-images.git official-images
           official-images/test/run.sh $(cat TAG_BEST_PRACTICE)
 
-      - name: E) Push docker images to registry
+      - name: E) Test / microscanner Aquasec Scanner
+        run: |
+          wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock knqyf263/trivy:latest -q -d --exit-code 1 $(cat TAG_BEST_PRACTICE)
+
+      - name: F) Push docker images to registry
         run: |
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
           docker push $(cat TAG_BEST_PRACTICE)
@@ -74,4 +79,6 @@ jobs:
       - uses: actions/checkout@master
 
       - name: Placeholder after Job 1 passed
-        run: echo "We could test the image that was pushed on docker hub"
+        run: |
+          echo "We could push a webhook to our cluster to complete the CI/CD"
+          echo "We could do an healthcheck in prod"
