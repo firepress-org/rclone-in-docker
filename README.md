@@ -90,23 +90,24 @@ docker run --rm -it devmtl/rclone:1.49.0_2019-08-26_11H19s19_e89c3ce
 Always check on docker hub the most recent build:
 https://hub.docker.com/r/devmtl/rclone/tags
 
+You should use **this tag** in prod:
+
+```
+devmtl/rclone:1.49.0_2019-08-26_11H19s19_e89c3ce
+```
+
+This tag contains three vital information:
+- the version
+- the build date
+- the hash commit
+
+These tags are also available:
+
 ```
 docker run --rm -it devmtl/rclone:1.49.0
 docker run --rm -it devmtl/rclone:stable
 docker run --rm -it devmtl/rclone:latest
 ```
-
-But, you should use **this tag**:
-
-```
-1.49.0_2019-08-26_11H19s19_e89c3ce
-```
-
-
-The tag contains three information:
-- version
-- build date
-- hash commit
 
 <br>
 
