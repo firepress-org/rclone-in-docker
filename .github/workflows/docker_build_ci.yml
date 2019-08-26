@@ -28,8 +28,8 @@ jobs:
           echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME):stable" > TAG_STABLE
           echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME):latest" > TAG_LATEST
           #
-          # The way we define vars above is a hack.
-          # Details: https://github.com/firepress-org/rclone-in-docker#hacking-github-actions
+          # The way we define vars above is a hack. See issue:
+          # https://github.com/actions/starter-workflows/issues/68#issuecomment-524937002
           #
           # DOCKERHUB_USER is hardcoded 
           # APP_NAME is taken from our Dockerfile
