@@ -61,7 +61,7 @@ jobs:
       - name: E) Test / microscanner Aquasec Scanner
         run: |
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock knqyf263/trivy:latest -q -d --exit-code 1 $(cat TAG_BEST_PRACTICE)
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_BEST_PRACTICE)
 
       - name: F) Push docker images to registry
         run: |
