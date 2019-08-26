@@ -1,6 +1,11 @@
 # [rclone](https://github.com/firepress-org/rclone-in-docker)
 
-rclone in a docker container.
+- rclone in a docker container using CI (continuous integration)
+- it builds everyday
+- it builds from go source
+- it use multi-stage
+- it use alpine
+- it run as non-root
 
 ## [About rclone](https://github.com/rclone/rclone/)
 [<img src="https://rclone.org/img/logo_on_light__horizontal_color.svg" width="50%" alt="rclone logo">](https://rclone.org/)
@@ -29,23 +34,33 @@ To « dockerfile CI everything » we need to keep a consistant format by definin
 
 Thanks to **Github Actions**, it's now very quick to set up a CI for your Dockerfile (and every project really).
 
-By setting these variables, your Dockerfile will build consistently for all project you manage.
+By setting these variables, your Dockerfile will build consistently for every projects you manage.
 
-#### 1) Dockerfile must include:
+
+**1) In the Dockerfile, update these:**
+
 ```
 ARG APP_NAME="rclone"
 ARG VERSION="1.49.0"
 ```
 
-#### 2) dockerfile_ci.yml must include:
+**2) In the dockerfile_ci.yml, update this:**
+
+It's under `./git_repo/.github/workflows/dockerfile_ci.yml`
+
 ```
 echo "devmtl" > DOCKERHUB_USER
 ```
 
-#### 3) The Github repo must include: 
+**3) In the  Github repo, add this:**
+
+It's under `settings/secrets`
+
 ```
 DOCKER_PASSWORD
 ```
+
+Assuming you have a valid Dockerfile, you basically have to set four environnement variables and your are doing CI like a chef. 
 
 ## Run the container
 
