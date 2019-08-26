@@ -30,11 +30,11 @@ Rclone *("rsync for cloud storage")* is a command line program to sync files and
 At FirePress we use rclone to do cold storage backup outside our clusters.
 
 ## « Dockerfile CI everything » requirements
-To « dockerfile CI everything » we need to keep a consistant format by defining a few **variables**.
+To « dockerfile CI everything » we need to keep a consistent format by defining a few **variables**.
 
 Thanks to **Github Actions**, it's now very quick to set up a CI for your Dockerfile (and every project really).
 
-By setting these variables, your Dockerfile will build consistently for every projects you manage.
+By setting these variables, your Dockerfile will build consistently for every project you manage.
 
 
 **1) In the Dockerfile, update these:**
@@ -60,7 +60,21 @@ It's under `settings/secrets`
 DOCKER_PASSWORD
 ```
 
-Assuming you have a valid Dockerfile, you basically have to set four environnement variables and your are doing CI like a chef. 
+Assuming you have a valid Dockerfile, you only have to set four environment variables, and you are doing CI like a chef. 
+
+## Hacking Github Actions
+
+**Github actions and environment variables**
+
+At this moment (August 2019), it's tricky to use variables with Github Actions. [The issue](https://github.com/actions/starter-workflows/issues/68) is that when you set variable in an **action**, further actions can NOT use these variables. What!?
+
+**Here is where the hack comes to play**. To avoid this limitation, we write variables on disk then `cat` them later. 
+
+See the « Action » **A) Define VARs in** `./git_repo/.github/workflows/dockerfile_ci.yml`
+
+From [Github docs](https://help.github.com/en/articles/virtual-environments-for-github-actions#github_token-secret):
+
+![Screen Shot 2019-08-26 at 12 22 51 PM](https://user-images.githubusercontent.com/6694151/63705967-4da73300-c7fc-11e9-89c1-ca9390740337.jpg)
 
 ## Run the container
 
@@ -69,9 +83,9 @@ docker run --rm -it devmtl/rclone:1.49.0_2019-08-26_11H19s19_e89c3ce
 ```
 
 
-## Dockerhub
+## Docker hub
 
-Always check on dockerhub the most recent build:
+Always check on docker hub the most recent build:
 https://hub.docker.com/r/devmtl/rclone/tags
 
 Use the tag from this format:
