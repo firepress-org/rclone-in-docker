@@ -17,7 +17,7 @@ RUN set -eux && apk --update --no-cache add \
     -t build-deps curl libc-dev gcc libgcc
 
 # Install app
-# Warning, we install the latest version of the app regardless the $VERSION we defined earlier.
+# Warning. Because the CI rebuild the image everyday, we install the latest version of the app regardless the $VERSION we defined earlier.
 RUN go get -u -v github.com/rclone/"${APP_NAME}" && \
     # compress binary
     upx /go/bin/"${APP_NAME}" && \
