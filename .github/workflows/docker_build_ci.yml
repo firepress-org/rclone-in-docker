@@ -62,14 +62,27 @@ jobs:
         run: |
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_BEST_PRACTICE)
+          #
+          # Build will stop only if it finds a critical issue
 
-      - name: F) Push docker images to registry
+      - name: F) Track logs
+        run: |
+          uname -a
+          docker version
+          docker info
+          docker run -d --name $(cat APP_NAME) $(cat TAG_BEST_PRACTICE)
+          docker logs $(cat APP_NAME)
+          docker inspect $(cat APP_NAME)
+
+      - name: G) Push docker images to registry
         run: |
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
           docker push $(cat TAG_BEST_PRACTICE)
           docker push $(cat TAG_VERSION)
           docker push $(cat TAG_STABLE)
           docker push $(cat TAG_LATEST)
+          #
+          echo "Check out https://hub.docker.com/r/$(cat DOCKERHUB_USER)/$(cat APP_NAME)/tags"
 
   Job2:
     needs: job1
@@ -78,7 +91,8 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Placeholder after Job 1 passed
+      - name: H) Afterbuild (ideas)
         run: |
-          echo "We could push a webhook to our cluster to complete the CI/CD"
-          echo "We could do an healthcheck in prod"
+          echo "Optionally, notify me on slack"
+          echo "Optionally,push a webhook to our cluster to complete the CI/CD"
+          echo "Optionally, do an healthcheck in prod in case of a webapp"
