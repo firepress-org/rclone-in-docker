@@ -65,15 +65,13 @@ You see the beauty of this? Assuming you have a valid Dockerfile, you only have 
 
 **Github actions and environment variables**
 
-At this moment (August 2019), it's tricky to use variables with Github Actions. [The issue](https://github.com/actions/starter-workflows/issues/68) is that when you set variable in an **action**, further actions can NOT use these variables. What!?
+The issue IMHO, is that when you set variables in an action, further actions can NOT consume these variables. See [Github docs](https://help.github.com/en/articles/virtual-environments-for-github-actions#github_token-secret) about this.
 
-**Here is where the hack comes to play**. To avoid this limitation, we write variables on disk then `cat` them later. 
+I found a way to hack this limitation.
+
+We write variables on disk then cat them later. So simple :-p
 
 See the « Action » **A) Define VARs in** `./git_repo/.github/workflows/dockerfile_ci.yml`
-
-From [Github docs](https://help.github.com/en/articles/virtual-environments-for-github-actions#github_token-secret):
-
-![Screen Shot 2019-08-26 at 12 22 51 PM](https://user-images.githubusercontent.com/6694151/63705967-4da73300-c7fc-11e9-89c1-ca9390740337.jpg)
 
 <br>
 
