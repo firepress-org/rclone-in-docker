@@ -14,9 +14,13 @@ rclone in a docker container using CI (continuous integration)
 - best practice **labels**
 - it compress the app with **UPX**
 
-## [About rclone](https://github.com/rclone/rclone/)
+<br>
+
+## About rclone
+
 [<img src="https://rclone.org/img/logo_on_light__horizontal_color.svg" width="50%" alt="rclone logo">](https://rclone.org/)
 
+[GitHub](https://github.com/rclone/rclone/) |
 [Website](https://rclone.org) |
 [Documentation](https://rclone.org/docs/) |
 [Download](https://rclone.org/downloads/) | 
@@ -28,21 +32,16 @@ Rclone *("rsync for cloud storage")* is a command line program to sync files and
 At FirePress we use rclone to do cold storage backup outside our clusters.
 
 ## « Dockerfile CI everything » requirements
-To « dockerfile CI everything » we need to keep a consistent format by defining a few **variables**.
+To « dockerfile CI everything » we need to keep a consistent format by defining a few **variables**. Thanks to **Github Actions**, it's now very quick to set up a CI for your Dockerfile (and every project really). By setting these variables, your Dockerfile will build consistently for every project you manage.
 
-Thanks to **Github Actions**, it's now very quick to set up a CI for your Dockerfile (and every project really).
-
-By setting these variables, your Dockerfile will build consistently for every project you manage.
-
-
-**1) In the Dockerfile, update these:**
+**1) In the Dockerfile, update:**
 
 ```
 ARG APP_NAME="rclone"
 ARG VERSION="1.49.0"
 ```
 
-**2) In the dockerfile_ci.yml, update this:**
+**2) In the dockerfile_ci.yml, update:**
 
 It's under `./git_repo/.github/workflows/dockerfile_ci.yml`
 
@@ -50,7 +49,7 @@ It's under `./git_repo/.github/workflows/dockerfile_ci.yml`
 echo "devmtl" > DOCKERHUB_USER
 ```
 
-**3) In the  Github repo, add this:**
+**3) In the Github repo, add:**
 
 It's under `settings/secrets`
 
@@ -58,7 +57,9 @@ It's under `settings/secrets`
 DOCKER_PASSWORD
 ```
 
-Assuming you have a valid Dockerfile, you only have to set four environment variables, and you are doing CI like a chef. 
+You see the beauty of this? Assuming you have a valid Dockerfile, you only have to set four environment variables, and you are doing CI like a chef and making the world a better place.
+
+<br>
 
 ## Hacking Github Actions
 
@@ -74,12 +75,15 @@ From [Github docs](https://help.github.com/en/articles/virtual-environments-for-
 
 ![Screen Shot 2019-08-26 at 12 22 51 PM](https://user-images.githubusercontent.com/6694151/63705967-4da73300-c7fc-11e9-89c1-ca9390740337.jpg)
 
+<br>
+
 ## Run the container
 
 ```
 docker run --rm -it devmtl/rclone:1.49.0_2019-08-26_11H19s19_e89c3ce
 ```
 
+<br>
 
 ## Docker hub
 
@@ -121,6 +125,8 @@ The tag contains three information:
 
 &nbsp;
 
+<br>
+
 ## Hosting
 
 At FirePress we empower entrepreneurs and small organizations to create their websites on top of [Ghost](https://firepress.org/en/faq/#what-is-ghost).
@@ -151,6 +157,7 @@ Check this post for more details: [Contributing to our Github project](https://p
 - The Ghost’s software is under the **MIT** license. [Find it here](https://ghost.org/license/).
 
 <br>
+
 
 ## Sources & Fork
 
