@@ -29,8 +29,7 @@ jobs:
           echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME):latest" > TAG_LATEST
           #
           # The way we define vars above is a hack.
-          # It's because Github CI does NOT allow to set VARs and have further steps consume these VARs.
-          # That's why we write VARs on disk.
+          # Details: https://github.com/firepress-org/rclone-in-docker#hacking-github-actions
           #
           # DOCKERHUB_USER is hardcoded 
           # APP_NAME is taken from our Dockerfile
@@ -74,5 +73,5 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Placeholder after job 1 has passed
+      - name: Placeholder after Job 1 passed
         run: echo "We could test the image that was pushed on docker hub"
