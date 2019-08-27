@@ -1,12 +1,15 @@
 ARG APP_NAME="rclone"
 ARG VERSION="1.49.0"
-ARG GIT_REPO="https://github.com/rclone/rclone/releases/download"
+ARG GIT_REPO="https://github.com/firepress-org/rclone-in-docker"
 ARG ALPINE_VERSION="3.10"
 
 # --- BUILDER GO -------------------------------
 FROM golang:alpine${ALPINE_VERSION} AS gobuilder
 
 ARG APP_NAME
+ARG VERSION
+# Warning. Because the CI rebuild the image everyday,
+# we install the latest version of the app regardless the $VERSION we define in the Dockerfile.
 
 # Install basics
 RUN set -eux && apk --update --no-cache add \
@@ -17,7 +20,6 @@ RUN set -eux && apk --update --no-cache add \
     -t build-deps curl libc-dev gcc libgcc
 
 # Install app
-# Warning. Because the CI rebuild the image everyday, we install the latest version of the app regardless the $VERSION we defined earlier.
 RUN go get -u -v github.com/rclone/"${APP_NAME}" && \
     # compress binary
     upx /go/bin/"${APP_NAME}" && \
@@ -34,7 +36,7 @@ ARG ALPINE_VERSION
 
 # Install basics
 RUN set -eux && apk --update --no-cache add \
-    openssl ca-certificates fuse tini
+    ca-certificates fuse tini
 
 COPY --from=gobuilder /go/bin/"${APP_NAME}" /sbin/"${APP_NAME}"
 
@@ -48,15 +50,14 @@ ENV SOURCE_COMMIT="$(git rev-parse --short HEAD)"
 # Best practice credit: https://github.com/opencontainers/image-spec/blob/master/annotations.md
 LABEL org.opencontainers.image.title="${APP_NAME}"                                              \
       org.opencontainers.image.version="${VERSION}"                                             \
-      org.opencontainers.image.description="not_set"                                            \
+      org.opencontainers.image.description="See README.md"                                      \
       org.opencontainers.image.authors="Pascal Andy https://firepress.org/en/contact/"          \
-      org.opencontainers.image.vendors="https://firepress.org/"                                 \
       org.opencontainers.image.created="${CREATED_DATE}"                                        \
       org.opencontainers.image.revision="${SOURCE_COMMIT}"                                      \
-      org.opencontainers.image.url="https://github.com/firepress-org/rclone-in-docker"          \
-      org.opencontainers.image.source="https://github.com/firepress-org/rclone-in-docker"       \
-      org.opencontainers.image.licenses="GNUv3 https://github.com/pascalandy/GNU-GENERAL-PUBLIC-LICENSE/blob/master/LICENSE.md" \
+      org.opencontainers.image.source="${GIT_REPO}"       \
+      org.opencontainers.image.licenses="GNUv3. See README.md" \
       org.firepress.image.user="usr_${APP_NAME}"                                                \
+      org.firepress.image.alpineversion="{ALPINE_VERSION}"                                      \
       org.firepress.image.field1="not_set"                                                      \
       org.firepress.image.field2="not_set"                                                      \
       org.firepress.image.schemaversion="1.0"
