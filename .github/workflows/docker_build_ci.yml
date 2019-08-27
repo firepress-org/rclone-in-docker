@@ -76,6 +76,7 @@ jobs:
 
       - name: G) Push docker images to registry
         run: |
+          echo "Push to docker hub"
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
           docker push $(cat TAG_BEST_PRACTICE)
           docker push $(cat TAG_VERSION)
@@ -83,6 +84,11 @@ jobs:
           docker push $(cat TAG_LATEST)
           #
           echo "Check out https://hub.docker.com/r/$(cat DOCKERHUB_USER)/$(cat APP_NAME)/tags"
+          #
+          echo "ToDo/ Push to Github Package Registry"
+          echo "ToDo/ docker build -t docker.pkg.github.com/firepress-org/registry/$(cat TAG_BEST_PRACTICE)"
+          echo "ToDo/ docker login docker.pkg.github.com -u firepress -p ${{ secrets.GPR_PASS }}"
+          echo "ToDo/ docker push docker.pkg.github.com/firepress-org/registry/$(cat TAG_BEST_PRACTICE)"
 
   Job2:
     needs: job1
@@ -93,6 +99,6 @@ jobs:
 
       - name: H) Afterbuild (ideas)
         run: |
-          echo "Optionally, notify me on slack"
-          echo "Optionally,push a webhook to our cluster to complete the CI/CD"
-          echo "Optionally, do an healthcheck in prod in case of a webapp"
+          echo "ToDo/ notify me on slack"
+          echo "ToDo/ push a webhook to our cluster to complete the CI/CD"
+          echo "ToDo/ do an healthcheck in prod in case of a webapp"
