@@ -34,14 +34,18 @@ You see the beauty of this? Assuming you have a valid Dockerfile, you only have 
 
 ## Hacking Github Actions
 
-**Github actions and environment variables**
+1/ Here is a great hack to use on your @github actions.
 
-The issue IMHO, is that when you set variables in an action, further actions can NOT consume these variables. See [Github docs](https://help.github.com/en/articles/virtual-environments-for-github-actions#github_token-secret) about this.
+The pain is that when you set variables in a step in your workflow, further steps can NOT see the VAR 🙊.
 
-I found a way to hack this limitation.
+Officially you have to re-set VAR at each step. This sucks.
 
-We write variables on disk then cat them later. So simple :-p
+Hold my beer 🍺
 
-See the « Action » **A) Define VARs in** `./git_repo/.github/workflows/dockerfile_ci.yml`
+2/ Well, that sucked for about a day. Then I had 🙌🙌.
 
+I found a way to hack this limitation. Write your VAR on disk (the CI system disk), then `cat $my_var` to use your VAR in every step you need 😎.
 
+3/ Take a look at my yml file here -> https://github.com/firepress-org/rclone-in-docker/blob/master/.github/workflows/docker_build_ci.yml#L20
+
+You'll be a CI ninja for Docker in no time 👊.
