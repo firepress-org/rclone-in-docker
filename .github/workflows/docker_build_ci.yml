@@ -80,7 +80,7 @@ jobs:
 
       - name: E2) Logs / docker logs
         run: |
-          docker run -it --name $(cat TAG_UAT)
+          docker run -it --name $(cat TAG_UAT) $(cat TAG_UAT)
           docker logs $(cat TAG_UAT)
 
       - name: E3) Logs / docker inspect
