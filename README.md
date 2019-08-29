@@ -4,14 +4,14 @@ rclone in a docker container using CI (continuous integration)
 
 **It features**:
 
-- it builds **everyday** and every commits
-- it builds from **go source**
-- it uses **multi-stage**
+- it builds **everyday** and on every commits
+- it builds from the **go source**
+- it uses **multi-stage** build
 - it uses **alpine** as final image
 - it runs as **non-root**
 - the app runs under **tiny**
-- it push 4 **tags** on docker hub
-- best practice **labels**
+- it push 4 **tags** to registry
+- it uses **labels**
 - it compress the app with **UPX**
 
 <br>
@@ -33,7 +33,7 @@ At FirePress we use rclone to do cold storage backup outside our clusters.
 
 <br>
 
-## Regarding Github Action & CI
+## Regarding Github Actions & CI configuration
 
 [See README-CI.md](./README-CI.md)
 
