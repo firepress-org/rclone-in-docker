@@ -51,7 +51,7 @@ jobs:
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
           echo "Build will stop only if it finds a critical issue"
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
+          docker run --name $(cat TAG_UAT) --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
 
       - name: D) Define image Tags
         run: |
@@ -67,22 +67,7 @@ jobs:
           # DATE is generated from our Ci system. Montreal time zone is 4 hours behind the CI system
           # SHORT_COMMIT_HASH is passed from our latest git commit
 
-      - name: E1) Logs / uname
-        run: uname -a
-
-      - name: E2) Logs / docker version + docker version info
-        run: docker version && docker info
-
-      - name: E3) Logs / docker logs
-        run: |
-          docker logs $(cat TAG_UAT)
-
-      - name: E4) Logs / docker inspect
-        run: |
-          docker inspect $(cat TAG_UAT)
-          docker rm -f $(cat TAG_UAT)
-
-      - name: E5) Logs / Tags
+      - name: E1) Logs / Tags
         run: |
           echo "$(cat TAG_STABLE) < TAG_STABLE"
           echo "$(cat TAG_LATEST) < TAG_LATEST"
@@ -92,6 +77,20 @@ jobs:
           #
           echo "Is there a delta between these versions? $VERSION_IN_APP versus $DOCKERFILE_VERSION"
           echo "ToDo/ notify on slack if there is a delta"
+
+      - name: E2) Logs / docker logs
+        run: docker logs $(cat TAG_UAT)
+
+      - name: E3) Logs / docker inspect
+        run: |
+          docker inspect $(cat TAG_UAT)
+          docker rm -f $(cat TAG_UAT)
+
+      - name: E4) Logs / docker version + docker version info
+        run: docker version && docker info
+
+      - name: E5) Logs / uname
+        run: uname -a
 
       - name: F) Build Dockerfile
         run: |
