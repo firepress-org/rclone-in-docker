@@ -39,7 +39,7 @@ jobs:
           #
           echo "Define the version of the app"
           # in ifself, this is a UAT
-          $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
+          $(docker run --name $(cat TAG_UAT) -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
     
       - name: C1) UAT with docker-library
         run: |
@@ -51,7 +51,7 @@ jobs:
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
           echo "Build will stop only if it finds a critical issue"
-          docker run --name $(cat TAG_UAT) --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
 
       - name: D) Define image Tags
         run: |
