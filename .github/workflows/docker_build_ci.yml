@@ -1,3 +1,6 @@
+# The beauty of this CI is that it will build every valid DOCKERFILE
+# See the requirements at https://github.com/firepress-org/rclone-in-docker/blob/master/README-CI.md
+
 name: docker_build_ci
 on:
   pull_request:
@@ -13,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: A) Define basic vars
+      - name: A) Define our variables
         run: |
           cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
           cat Dockerfile | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > DOCKERFILE_VERSION
@@ -27,7 +30,7 @@ jobs:
           # The way we define vars above is a hack. See why:
           # https://twitter.com/askpascalandy/status/1166535922160230406
 
-      - name: B) Build UAT image
+      - name: B) Build image (UAT)
         run: |
           # UAT is User Acceptance Testing
           echo "$(cat APP_NAME):uat" > TAG_UAT
@@ -35,14 +38,15 @@ jobs:
           docker build --file Dockerfile --tag $(cat TAG_UAT) .
           #
           echo "Define the version of the app"
+          # in ifself, this is a UAT
           $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
     
-      - name: C1) Test UAT / from docker-library
+      - name: C1) UAT with docker-library
         run: |
           git clone https://github.com/docker-library/official-images.git official-images
           official-images/test/run.sh $(cat TAG_UAT)
 
-      - name: C2) Test / from Aquasec microscanner
+      - name: C2) UAT with Aquasec microscanner
         run: |
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
@@ -71,14 +75,14 @@ jobs:
 
       - name: E3) Logs / docker logs
         run: |
-          docker logs $(cat APP_NAME)
+          docker logs $(cat TAG_UAT)
 
       - name: E4) Logs / docker inspect
         run: |
-          docker inspect $(cat APP_NAME)
-          docker rm -f $(cat APP_NAME)
+          docker inspect $(cat TAG_UAT)
+          docker rm -f $(cat TAG_UAT)
 
-      - name: E5) Logs / Docker Tags
+      - name: E5) Logs / Tags
         run: |
           echo "$(cat TAG_STABLE) < TAG_STABLE"
           echo "$(cat TAG_LATEST) < TAG_LATEST"
@@ -89,7 +93,7 @@ jobs:
           echo "Is there a delta between these versions? $VERSION_IN_APP versus $DOCKERFILE_VERSION"
           echo "ToDo/ notify on slack if there is a delta"
 
-      - name: F) Build docker images
+      - name: F) Build Dockerfile
         run: |
           docker build --file Dockerfile --tag $(cat TAG_BEST_PRACTICE) .
           docker build --file Dockerfile --tag $(cat TAG_VERSION) .
@@ -98,7 +102,7 @@ jobs:
           #
           # build on GPR
 
-      - name: G) Push docker images to registries
+      - name: G) Push docker image to registry
         run: |
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
           docker push $(cat TAG_BEST_PRACTICE)
