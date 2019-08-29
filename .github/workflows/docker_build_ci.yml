@@ -35,9 +35,8 @@ jobs:
           # UAT is User Acceptance Testing
           echo "$(cat APP_NAME):uat" > TAG_UAT
           echo "Lets build >>> $(cat TAG_UAT)"
-          docker build --file Dockerfile --tag $(cat TAG_UAT) .
           echo $(cat TAG_UAT)
-          exit 1
+          docker build --file Dockerfile --tag $(cat TAG_UAT) .
           #
           echo "Define the version of the app"
           # in itself, this is a UAT
