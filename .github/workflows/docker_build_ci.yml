@@ -30,7 +30,7 @@ jobs:
           # The way we define vars above is a hack. See why:
           # https://twitter.com/askpascalandy/status/1166535922160230406
 
-      - name: B1) Build UAT image
+      - name: B1) Build UAT docker image
         run: |
           # UAT is User Acceptance Testing
           echo "$(cat APP_NAME):uat" > TAG_UAT
@@ -38,27 +38,27 @@ jobs:
           docker build --file Dockerfile --tag $(cat TAG_UAT) .
           #
           echo "Define the version of the app"
-          # in itself, this is a UAT
-          $(docker run -it --name $(cat APP_NAME) $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
-    
-      - name: B2) BYPASSED!!! Test UAT image with docker-library
+          # In itself, this is a UAT
+          echo $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
+
+      - name: B2) BYPASSED!!! UAT image with docker-library
         run: |
           git clone https://github.com/docker-library/official-images.git official-images
           #official-images/test/run.sh $(cat TAG_UAT)
 
-      - name: B3) BYPASSED!!! Test UAT image with Aquasec microscanner
+      - name: B3) BYPASSED!!! UAT image with Aquasec microscanner
         run: |
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
           echo "Build will stop only if it finds a critical issue"
           #docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
 
-      - name: C1) Log / image Tags
+      - name: C1) Log / Tags and variables
         run: |
           echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)_$(cat DATE)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
-          echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)" > TAG_VERSION
           echo "$(cat DOCKER_USER_APP):stable" > TAG_STABLE
           echo "$(cat DOCKER_USER_APP):latest" > TAG_LATEST
+          echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)" > TAG_VERSION
           #
           # DOCKERHUB_USER is hardcoded 
           # APP_NAME is taken from our Dockerfile
@@ -66,15 +66,25 @@ jobs:
           # VERSION_IN_APP is taken from the docker container itself
           # DATE is generated from our Ci system. Montreal time zone is 4 hours behind the CI system
           # SHORT_COMMIT_HASH is passed from our latest git commit
-
-      - name: C2) Log / Tags
-        run: |
-          echo "$(cat TAG_STABLE) < TAG_STABLE"
-          echo "$(cat TAG_LATEST) < TAG_LATEST"
+          #
+          echo " "
           echo "$(cat TAG_BEST_PRACTICE) < TAG_BEST_PRACTICE"
           echo "$(cat TAG_VERSION) < TAG_VERSION"
-          echo "$(cat DOCKERFILE_VERSION) < DOCKERFILE_VERSION"
+          echo "$(cat TAG_STABLE) < TAG_STABLE"
+          echo "$(cat TAG_LATEST) < TAG_LATEST"
           #
+          echo " "
+          echo "$(cat APP_NAME) < APP_NAME"
+          echo "$(cat DOCKERFILE_VERSION) < DOCKERFILE_VERSION"
+          echo "$(cat VERSION_IN_APP) < VERSION_IN_APP"
+          echo "$(cat DATE) < DATE"
+          echo "$(cat SHORT_COMMIT_HASH) < SHORT_COMMIT_HASH"
+          echo "$(cat DOCKERHUB_USER) < DOCKERHUB_USER"
+          echo "$(cat GITHUB_USER) < GITHUB_USER"
+          echo "$(cat DOCKER_USER_APP) < DOCKER_USER_APP"
+          echo "$(cat GITHUB_USER_APP) < GITHUB_USER_APP"
+          #
+          echo " "
           echo "Is there a delta between these versions? $VERSION_IN_APP versus $DOCKERFILE_VERSION"
           echo "ToDo/ notify on slack if there is a delta"
 
