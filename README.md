@@ -40,7 +40,18 @@ At FirePress we use rclone to do cold storage backup outside our clusters.
 ## Run the container
 
 ```
-docker run --rm -it devmtl/rclone:1.49.0_2019-08-26_11H19s19_e89c3ce
+docker run -it \
+--name my_rclone \
+devmtl/rclone:1.49.0_2019-08-26_11H19s19_e89c3ce \
+sh -c 'rclone --version'
+```
+
+will return:
+
+```
+rclone v1.49.0
+- os/arch: linux/amd64
+- go version: go1.12.9
 ```
 
 <br>
