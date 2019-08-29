@@ -13,79 +13,103 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: A) Define VARs
+      - name: A) Define basic vars
         run: |
-          echo "We need five information to build our tags:"
-          echo " "
-          echo "devmtl" > DOCKERHUB_USER
           cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
-          cat Dockerfile | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
+          cat Dockerfile | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > DOCKERFILE_VERSION
           date -d "-4 hours" "+%Y-%m-%d_%HH%Ms%S" > DATE
           git rev-parse --short HEAD > SHORT_COMMIT_HASH
+          echo "devmtl" > DOCKERHUB_USER
+          echo "firepress-org" > GITHUB_USER
+          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DOCKER_USER_APP
+          echo "$(cat GITHUB_USER)/$(cat APP_NAME)" > GITHUB_USER_APP
           #
-          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME):$(cat VERSION)_$(cat DATE)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
-          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME):$(cat VERSION)" > TAG_VERSION
-          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME):stable" > TAG_STABLE
-          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME):latest" > TAG_LATEST
+          # The way we define vars above is a hack. See why:
+          # https://twitter.com/askpascalandy/status/1166535922160230406
+
+      - name: B) Build UAT image
+        run: |
+          # UAT is User Acceptance Testing
+          echo "$(cat APP_NAME):uat" > TAG_UAT
+          echo "Lets build >>> $(cat TAG_UAT)"
+          docker build --file Dockerfile --tag $(cat TAG_UAT) .
           #
-          # The way we define vars above is a hack. See issue:
-          # https://github.com/actions/starter-workflows/issues/68#issuecomment-524937002
+          echo "Define the version of the app"
+          $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
+    
+      - name: C1) Test UAT / from docker-library
+        run: |
+          git clone https://github.com/docker-library/official-images.git official-images
+          official-images/test/run.sh $(cat TAG_UAT)
+
+      - name: C2) Test / from Aquasec microscanner
+        run: |
+          wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
+          #
+          echo "Build will stop only if it finds a critical issue"
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
+
+      - name: D) Define image Tags
+        run: |
+          echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)_$(cat DATE)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
+          echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)" > TAG_VERSION
+          echo "$(cat DOCKER_USER_APP):stable" > TAG_STABLE
+          echo "$(cat DOCKER_USER_APP):latest" > TAG_LATEST
           #
           # DOCKERHUB_USER is hardcoded 
           # APP_NAME is taken from our Dockerfile
-          # VERSION is taken from our Dockerfile
+          # DOCKERFILE_VERSION is taken from our Dockerfile
+          # VERSION_IN_APP is taken from the docker container itself
           # DATE is generated from our Ci system. Montreal time zone is 4 hours behind the CI system
           # SHORT_COMMIT_HASH is passed from our latest git commit
 
-      - name: B) Display docker image tags
-        run: |
-          echo "Our 4 tags are:"
-          #
-          echo $(cat TAG_BEST_PRACTICE)
-          echo $(cat TAG_VERSION)
-          echo $(cat TAG_STABLE)
-          echo $(cat TAG_LATEST)
+      - name: E1) Logs / uname
+        run: uname -a
 
-      - name: C) Build docker images
+      - name: E2) Logs / docker version + docker version info
+        run: docker version && docker info
+
+      - name: E3) Logs / docker logs
+        run: |
+          docker logs $(cat APP_NAME)
+
+      - name: E4) Logs / docker inspect
+        run: |
+          docker inspect $(cat APP_NAME)
+          docker rm -f $(cat APP_NAME)
+
+      - name: E5) Logs / Docker Tags
+        run: |
+          echo "$(cat TAG_STABLE) < TAG_STABLE"
+          echo "$(cat TAG_LATEST) < TAG_LATEST"
+          echo "$(cat TAG_BEST_PRACTICE) < TAG_BEST_PRACTICE"
+          echo "$(cat TAG_VERSION) < TAG_VERSION"
+          echo "$(cat DOCKERFILE_VERSION) < DOCKERFILE_VERSION"
+          #
+          echo "Is there a delta between these versions? $VERSION_IN_APP versus $DOCKERFILE_VERSION"
+          echo "ToDo/ notify on slack if there is a delta"
+
+      - name: F) Build docker images
         run: |
           docker build --file Dockerfile --tag $(cat TAG_BEST_PRACTICE) .
           docker build --file Dockerfile --tag $(cat TAG_VERSION) .
           docker build --file Dockerfile --tag $(cat TAG_STABLE) .
           docker build --file Dockerfile --tag $(cat TAG_LATEST) .
-
-      - name: D) Test / official docker tests
-        run: |
-          git clone https://github.com/docker-library/official-images.git official-images
-          official-images/test/run.sh $(cat TAG_BEST_PRACTICE)
-
-      - name: E) Test / microscanner Aquasec Scanner
-        run: |
-          wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_BEST_PRACTICE)
           #
-          # Build will stop only if it finds a critical issue
+          # build on GPR
 
-      - name: F) Track logs
+      - name: G) Push docker images to registries
         run: |
-          uname -a
-          docker version
-          docker info
-          docker run -d --name $(cat APP_NAME) $(cat TAG_BEST_PRACTICE)
-          docker logs $(cat APP_NAME)
-          docker inspect $(cat APP_NAME)
-
-      - name: G) Push docker images to registry
-        run: |
-          echo "Push to docker hub"
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
           docker push $(cat TAG_BEST_PRACTICE)
           docker push $(cat TAG_VERSION)
           docker push $(cat TAG_STABLE)
           docker push $(cat TAG_LATEST)
           #
+          # push on GPR
           echo "Check out https://hub.docker.com/r/$(cat DOCKERHUB_USER)/$(cat APP_NAME)/tags"
           #
-          echo "ToDo/ Push to Github Package Registry"
+          echo "ToDo/ Push to Github Package Registry (GPR)"
           echo "ToDo/ docker build -t docker.pkg.github.com/firepress-org/registry/$(cat TAG_BEST_PRACTICE)"
           echo "ToDo/ docker login docker.pkg.github.com -u firepress -p ${{ secrets.GPR_PASS }}"
           echo "ToDo/ docker push docker.pkg.github.com/firepress-org/registry/$(cat TAG_BEST_PRACTICE)"
@@ -97,8 +121,8 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: H) Afterbuild (ideas)
+      - name: H) Afterbuild (ideas & placeholder)
         run: |
           echo "ToDo/ notify me on slack"
-          echo "ToDo/ push a webhook to our cluster to complete the CI/CD"
+          echo "ToDo/ push a webhook to our cluster. The CD part of CI/CD"
           echo "ToDo/ do an healthcheck in prod in case of a webapp"
