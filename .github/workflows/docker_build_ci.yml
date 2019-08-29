@@ -35,26 +35,25 @@ jobs:
           # UAT is User Acceptance Testing
           echo "$(cat APP_NAME):uat" > TAG_UAT
           echo "Lets build >>> $(cat TAG_UAT)"
-          echo $(cat TAG_UAT)
           docker build --file Dockerfile --tag $(cat TAG_UAT) .
           #
           echo "Define the version of the app"
           # in itself, this is a UAT
-          $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
+          $(docker run -it --name $(cat APP_NAME) $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
     
-      - name: B2) Test UAT image with docker-library
+      - name: B2) BYPASSED!!! Test UAT image with docker-library
         run: |
           git clone https://github.com/docker-library/official-images.git official-images
           #official-images/test/run.sh $(cat TAG_UAT)
 
-      - name: B3) Test UAT image with Aquasec microscanner
+      - name: B3) BYPASSED!!! Test UAT image with Aquasec microscanner
         run: |
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
           echo "Build will stop only if it finds a critical issue"
           #docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
 
-      - name: C) Define image Tags
+      - name: C1) Log / image Tags
         run: |
           echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)_$(cat DATE)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
           echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)" > TAG_VERSION
@@ -68,7 +67,7 @@ jobs:
           # DATE is generated from our Ci system. Montreal time zone is 4 hours behind the CI system
           # SHORT_COMMIT_HASH is passed from our latest git commit
 
-      - name: D1) Logs / Tags
+      - name: C2) Log / Tags
         run: |
           echo "$(cat TAG_STABLE) < TAG_STABLE"
           echo "$(cat TAG_LATEST) < TAG_LATEST"
@@ -79,24 +78,17 @@ jobs:
           echo "Is there a delta between these versions? $VERSION_IN_APP versus $DOCKERFILE_VERSION"
           echo "ToDo/ notify on slack if there is a delta"
 
-      - name: D2) Logs / docker logs
-        run: |
-          docker run -d --name $(cat APP_NAME) $(cat TAG_UAT)
-          docker logs $(cat APP_NAME)
-          docker inspect $(cat APP_NAME)
-
-      - name: D3) Logs / docker inspect
+      - name: C3) Log / docker inspect
         run: |
           docker inspect $(cat TAG_UAT)
-          docker rm -f $(cat TAG_UAT)
 
-      - name: D4) Logs / docker version + docker version info
+      - name: C3) Log / docker version + docker version info
         run: docker version && docker info
 
-      - name: D5) Logs / uname
+      - name: C5) Log / uname
         run: uname -a
 
-      - name: E) Build Dockerfile
+      - name: D) Build Dockerfile
         run: |
           docker build --file Dockerfile --tag $(cat TAG_BEST_PRACTICE) .
           docker build --file Dockerfile --tag $(cat TAG_VERSION) .
@@ -105,7 +97,7 @@ jobs:
           #
           # build on GPR
 
-      - name: F) Push docker image to registry
+      - name: E) Push docker image to registry
         run: |
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
           docker push $(cat TAG_BEST_PRACTICE)
@@ -128,7 +120,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: G) Afterbuild (ideas & placeholder)
+      - name: F) Afterbuild (ideas & placeholder)
         run: |
           echo "ToDo/ notify succes on slack"
           echo "ToDo/ Deploy on our prod cluster and log results"
