@@ -18,17 +18,22 @@ It's under `./git_repo/.github/workflows/dockerfile_ci.yml`
 
 ```
 echo "devmtl" > DOCKERHUB_USER
+echo "firepress-org" > GITHUB_USER
 ```
 
-**3) In the Github repo, add:**
+Bypass the step `Define the version of the app` if it's too overkill for you.
+
+**3) In your Github repo, add:**
 
 It's under `settings/secrets`
 
 ```
 DOCKER_PASSWORD
+
+my_super_pass_in234itohw0e9gh
 ```
 
-You see the beauty of this? Assuming you have a valid Dockerfile, you only have to set four environment variables, and you are doing CI like a chef and making the world a better place.
+You see the beauty of this? Assuming you have a valid Dockerfile, you only have to set a few environment variables. You are doing CI like a chef and making the world a better place.
 
 <br>
 
