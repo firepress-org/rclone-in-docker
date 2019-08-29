@@ -39,7 +39,7 @@ jobs:
           #
           echo "Define the version of the app"
           # in ifself, this is a UAT
-          $(docker run --name $(cat TAG_UAT) -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
+          $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
     
       - name: C1) UAT with docker-library
         run: |
@@ -79,7 +79,9 @@ jobs:
           echo "ToDo/ notify on slack if there is a delta"
 
       - name: E2) Logs / docker logs
-        run: docker logs $(cat TAG_UAT)
+        run: |
+          docker run -it --name $(cat TAG_UAT)
+          docker logs $(cat TAG_UAT)
 
       - name: E3) Logs / docker inspect
         run: |
