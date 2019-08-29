@@ -19,7 +19,7 @@ jobs:
       - name: A) Define our variables
         run: |
           cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
-          cat Dockerfile | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > DOCKERFILE_VERSION
+          cat Dockerfile | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
           date -d "-4 hours" "+%Y-%m-%d_%HH%Ms%S" > DATE
           git rev-parse --short HEAD > SHORT_COMMIT_HASH
           echo "devmtl" > DOCKERHUB_USER
@@ -34,19 +34,18 @@ jobs:
         run: |
           # UAT is User Acceptance Testing
           echo "$(cat APP_NAME):uat" > TAG_UAT
-          echo "Lets build >>> $(cat TAG_UAT)"
           docker build --file Dockerfile --tag $(cat TAG_UAT) .
           #
-          echo "Define the version of the app"
-          # In itself, this is a UAT
-          echo $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1 | sed 's/rclone v//g') > VERSION_IN_APP
+          echo " "
+          echo "Define the version of the app. (In itself, this is a UAT)"
+          echo $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1) > VERSION_IN_APP
 
-      - name: B2) BYPASSED!!! UAT image with docker-library
+      - name: B2) BYPASSED!!! /////// UAT image with docker-library
         run: |
           git clone https://github.com/docker-library/official-images.git official-images
           #official-images/test/run.sh $(cat TAG_UAT)
 
-      - name: B3) BYPASSED!!! UAT image with Aquasec microscanner
+      - name: B3) BYPASSED!!! /////// UAT image with Aquasec microscanner
         run: |
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
@@ -55,14 +54,14 @@ jobs:
 
       - name: C1) Log / Tags and variables
         run: |
-          echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)_$(cat DATE)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
+          echo "$(cat DOCKER_USER_APP):$(cat VERSION)_$(cat DATE)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
           echo "$(cat DOCKER_USER_APP):stable" > TAG_STABLE
           echo "$(cat DOCKER_USER_APP):latest" > TAG_LATEST
-          echo "$(cat DOCKER_USER_APP):$(cat VERSION_IN_APP)" > TAG_VERSION
+          echo "$(cat DOCKER_USER_APP):$(cat VERSION)" > TAG_VERSION
           #
           # DOCKERHUB_USER is hardcoded 
           # APP_NAME is taken from our Dockerfile
-          # DOCKERFILE_VERSION is taken from our Dockerfile
+          # VERSION is taken from our Dockerfile
           # VERSION_IN_APP is taken from the docker container itself
           # DATE is generated from our Ci system. Montreal time zone is 4 hours behind the CI system
           # SHORT_COMMIT_HASH is passed from our latest git commit
@@ -75,7 +74,7 @@ jobs:
           #
           echo " "
           echo "$(cat APP_NAME) < APP_NAME"
-          echo "$(cat DOCKERFILE_VERSION) < DOCKERFILE_VERSION"
+          echo "$(cat VERSION) < VERSION"
           echo "$(cat VERSION_IN_APP) < VERSION_IN_APP"
           echo "$(cat DATE) < DATE"
           echo "$(cat SHORT_COMMIT_HASH) < SHORT_COMMIT_HASH"
@@ -85,7 +84,7 @@ jobs:
           echo "$(cat GITHUB_USER_APP) < GITHUB_USER_APP"
           #
           echo " "
-          echo "Is there a delta between these versions? $VERSION_IN_APP versus $DOCKERFILE_VERSION"
+          echo "Is there a delta between these versions? $VERSION_IN_APP versus $VERSION"
           echo "ToDo/ notify on slack if there is a delta"
 
       - name: C3) Log / docker inspect
