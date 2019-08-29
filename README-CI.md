@@ -1,11 +1,16 @@
 ## README
 
-[See README.md](./README.md)
+[Back to README.md](./README.md)
 
 ## « Dockerfile CI everything » requirements
-To « dockerfile CI everything » we need to keep a consistent format by defining a few **variables**. Thanks to **Github Actions**, it's now very quick to set up a CI for your Dockerfile (and every project really). By setting these variables, your Dockerfile will build consistently for every project you manage.
 
-**1) In the Dockerfile, update:**
+You see the beauty of this? Assuming you have a valid Dockerfile, you only have to set a few environment variables. You are doing CI like a chef and making the world a better place.
+
+To « dockerfile CI everything » we need to keep a consistent format by defining a few **variables**. Thanks to **Github Actions**, it's now very quick to set up a CI for your Dockerfile (and every project really).
+
+This will help you to consistently build for every project you manage.
+
+**1) In the Dockerfile, ensure to have these, and update:**
 
 ```
 ARG APP_NAME="rclone"
@@ -17,23 +22,23 @@ ARG VERSION="1.49.0"
 It's under `./git_repo/.github/workflows/dockerfile_ci.yml`
 
 ```
+## to push on dockerhub
 echo "devmtl" > DOCKERHUB_USER
-echo "firepress-org" > GITHUB_USER
+echo "Dockerfile" > DOCKERFILE_NAME
+
+## to push on Github Package Registry (GPR)
+echo "firepress" > GITHUB_USER
+echo "firepress-org" > GITHUB_ORG
+echo "registry" > GITHUB_REGISTRY
 ```
 
-Bypass the step `Define the version of the app` if it's too overkill for you.
-
-**3) In your Github repo, add:**
+**3) Set up this secret your Github repo:**
 
 It's under `settings/secrets`
 
 ```
 DOCKER_PASSWORD
-
-my_super_pass_in234itohw0e9gh
 ```
-
-You see the beauty of this? Assuming you have a valid Dockerfile, you only have to set a few environment variables. You are doing CI like a chef and making the world a better place.
 
 <br>
 
