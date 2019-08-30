@@ -126,9 +126,14 @@ jobs:
     name: Job 2/3
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
-      # Post a repo's README.md file as a repositories "Full Description" on Docker Hub.
-      - name: Update Docker hub README
+      - name: A) Define our variables
+        run: |
+          echo "devmtl" > DOCKERHUB_USER
+          cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
+          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DOCKER_USER_APP
+
+      # Push README.md on the Docker hub's "Full Description" section
+      - name: B) Update Dockerhub's Full Description
         uses: docker://mpepping/docker-hub-metadata-github-action
         env:
           IMAGE: $(cat DOCKER_USER_APP)
