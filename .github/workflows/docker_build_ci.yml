@@ -48,7 +48,6 @@ jobs:
         run: |
           git clone https://github.com/docker-library/official-images.git official-images
           official-images/test/run.sh $(cat TAG_UAT)
-          # docker run --rm -i hadolint/hadolint < Dockerfile
 
       - name: B3) Test image with Aquasec microscanner
         run: |
@@ -57,7 +56,7 @@ jobs:
           echo "The build will stop only if it finds a critical issue"
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
 
-      - name: C1) Log, tags and variables
+      - name: C1) Log / tags and variables
         run: |
           echo "$(cat DOCKER_USER_APP):$(cat VERSION)_$(cat DATE_IT)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
           echo "$(cat DOCKER_USER_APP):stable" > TAG_STABLE
@@ -88,17 +87,19 @@ jobs:
           echo "$(cat GITHUB_USER_APP) < GITHUB_USER_APP"
           echo "$(cat GITHUB_REGISTRY) < GITHUB_REGISTRY"
 
-      - name: C2) Log, docker inspect
-        run: |
-          docker inspect $(cat TAG_UAT)
-          #docker history $(cat TAG_UAT)
-      - name: C3) Log, docker version and docker version info
+      - name: C2) Log / docker inspect
+        run: docker inspect $(cat TAG_UAT)
+
+      - name: C3) Log / docker history
+        run: docker history $(cat TAG_UAT)
+
+      - name: C4) Log / docker version and docker version info
         run: docker version && echo && docker info
 
-      - name: C4) Log, uname
+      - name: C5) Log / uname
         run: uname -a
 
-      - name: D) Build Dockerfile
+      - name: D) Build all tags
         run: |
           docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_BEST_PRACTICE) .
           docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_VERSION) .
@@ -107,7 +108,7 @@ jobs:
           #
           # build for Github Package Registry (GPR)
 
-      - name: E) Push docker image to registry
+      - name: E) Push to registry
         run: |
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
           docker push $(cat TAG_BEST_PRACTICE)
