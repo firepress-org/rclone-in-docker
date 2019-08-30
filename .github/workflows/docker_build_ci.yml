@@ -14,8 +14,6 @@ jobs:
     name: Job 1/3
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@master
-
       - name: A) Define our variables
         run: |
           # Set these variables:
@@ -121,40 +119,36 @@ jobs:
           echo "ToDo/ docker login docker.pkg.github.com -u $(cat GITHUB_USER) -p ${{ secrets.GPR_PASS }}"
           echo "ToDo/ docker push docker.pkg.github.com/$(cat GITHUB_ORG)/$(cat GITHUB_REGISTRY)/$(cat TAG_BEST_PRACTICE)"
 
+  # Push README.md on the Docker hub's "Full Description" section
   Job2:
     needs: job1
     name: Job 2/3
     runs-on: ubuntu-18.04
     steps:
-      - name: A) Define our variables
+      - name: F1) Define our variables
         run: |
           echo "devmtl" > DOCKERHUB_USER
           cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
           echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DOCKER_USER_APP
-
-      # Push README.md on the Docker hub's "Full Description" section
-      - name: B) Update Dockerhub's Full Description
-        uses: docker://mpepping/docker-hub-metadata-github-action
-        env:
-          IMAGE: $(cat DOCKER_USER_APP)
-          DOCKER_USERNAME: $(cat DOCKERHUB_USER)
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      
+      # Buggy at the moment
+      #
+      #- name: F2) Update Dockerhub's Full Description
+      #  uses: docker://mpepping/docker-hub-metadata-github-action
+      #  env:
+      #    IMAGE: $(cat DOCKER_USER_APP)
+      #    DOCKER_USERNAME: $(cat DOCKERHUB_USER)
+      #    DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   Job3:
     needs: job1
     name: Job 3/3
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@master
-
-      - name: F) Afterbuild (brainstorming use cases)
+      - name: G) Afterbuild (brainstorm & use cases)
         run: |
           echo " "
-          # echo "ToDo/ notify succes on slack"
-          # echo "ToDo/ push a webhook to our cluster. The CD part of CI/CD"
-          # echo "ToDo/ For webapps, do an healthcheck in prod cluster"
-          #
-          echo "Compare versions on stateless setup. Because we cannot do 'TTY' on CI"
-          # echo "devmtl/rclone:latest" > TAG_UAT
-          # echo $(docker run -it $(cat TAG_UAT) sh -c 'rclone --version' | head -n1) > VERSION_IN_APP
-          # Then is VERSION = VERSION_IN_APP ? If not, alert
+          # echo "brainstorm/ notify succes on slack"
+          # echo "brainstorm/ push a webhook to our cluster. The CD part of CI/CD"
+          # echo "brainstorm/ SSH on on node to do X"
+          # echo "brainstorm/ For webapps, do an healthcheck in prod cluster"
