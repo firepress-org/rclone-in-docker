@@ -26,15 +26,12 @@ RUN set -eux && apk --update --no-cache add \
 WORKDIR /go/src/github.com/rclone/rclone
 RUN git clone "${GIT_REPO_SOURCE}" --single-branch --depth 1 -b "v${VERSION}" . && \
     git checkout -b "v${VERSION}" && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/"${APP_NAME}"
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /usr/local/bin/"${APP_NAME}"
 
 # Compress binary
-RUN upx /go/bin/"${APP_NAME}" && \
-    upx -t /go/bin/"${APP_NAME}" && \
+RUN upx /usr/local/bin/"${APP_NAME}" && \
+    upx -t /usr/local/bin/"${APP_NAME}" && \
     rclone --version
-
-# Move binary
-RUN mv /go/bin/"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
 
 # Run as non-root
 RUN addgroup -S grp_"${APP_NAME}" && \
