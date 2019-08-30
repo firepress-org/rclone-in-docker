@@ -38,47 +38,69 @@ At FirePress we use rclone to do cold storage backup outside our clusters.
 
 [See README-CI.md](./README-CI.md)
 
-## Run the container
-
-```
-docker run -it \
---name my_rclone \
-devmtl/rclone:1.49.0_2019-08-26_11H19s19_e89c3ce \
-sh -c 'rclone --version'
-```
-
-will return:
-
-```
-rclone v1.49.0
-- os/arch: linux/amd64
-- go version: go1.12.9
-```
-
 <br>
 
 ## Docker hub
 
-Always check on docker hub the most recent build:
-https://hub.docker.com/r/devmtl/rclone/tags
+Always check on docker hub the most recent build:<br>
+[https://hub.docker.com/r/devmtl/rclone/tags](https://hub.docker.com/r/devmtl/rclone/tags)
 
-You should use **this tag** in prod:
-
-```
-devmtl/rclone:1.49.0_2019-08-26_11H19s19_e89c3ce
-```
-
-This tag contains three vital information:
-- the version
-- the build date
-- the hash commit
-
-These tags are also available:
+You should use **this tag format** `$VERSION_$DATE_$HASH-COMMIT` in production.
 
 ```
-docker run --rm -it devmtl/rclone:1.49.0
+devmtl/rclone:1.49.1_2019-08-30_12H18s03_4984c21
+```
+
+These tags are also available to quickly test stuff:
+
+```
+docker run --rm -it devmtl/rclone:1.49.1
 docker run --rm -it devmtl/rclone:stable
 docker run --rm -it devmtl/rclone:latest
+```
+
+<br>
+
+## Running the container
+
+### Example 1
+
+```
+img_rclone="1.49.1_2019-08-30_12H18s03_4984c21"
+
+docker run -it --rm \
+  --name rclone-runner \
+  ${img_rclone}
+```
+
+or overide the default command:
+
+```
+img_rclone="1.49.1_2019-08-30_12H18s03_4984c21"
+run_this="rclone --version"
+
+docker run -it --rm \
+  --name rclone-runner \
+  -v /localpath/data:/data" \
+  -v /localpath/rclone.conf:/home/usr_rclone/.config/rclone/rclone.conf \
+  ${img_rclone} \
+  sh -c "${run_this}"
+```
+
+### Example 2
+
+Real life example to uplaod on B2
+
+```
+img_rclone="1.49.1_2019-08-30_12H18s03_4984c21"
+run_this="rclone copy --transfers 10 --include ${FILE_TO_UPLOAD} /data ${B2_BUCKET_DESTINATION}"
+
+docker run --rm \
+  --name rclone-runner \
+  -v /localpath/data:/data" \
+  -v /localpath/rclone.conf:/home/usr_rclone/.config/rclone/rclone.conf \
+  ${IMG_rclone} \
+  sh -c "${run_this}"
 ```
 
 <br>
