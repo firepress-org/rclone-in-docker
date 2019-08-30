@@ -83,6 +83,6 @@ LABEL org.opencontainers.image.title="${APP_NAME}"                              
 
 USER usr_"${APP_NAME}"
 WORKDIR /usr/local/bin
-VOLUME /data
+VOLUME [ "/home/usr_rclone/.config/rclone", "/data" ]
 ENTRYPOINT [ "/sbin/tini", "--" ]
 CMD [ "rclone", "--version" ]
