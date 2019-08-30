@@ -58,7 +58,7 @@ ENV SOURCE_COMMIT="$(git rev-parse --short HEAD)"
 
 # Install basics
 RUN set -eux && apk --update --no-cache add \
-    ca-certificates tini
+    tini
 
 # Run as non-root
 RUN addgroup -S grp_"${APP_NAME}" && \
