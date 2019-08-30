@@ -1,9 +1,8 @@
-ARG APP_NAME="rclone"
 ARG VERSION="1.49.1"
+ARG APP_NAME="rclone"
+ARG ALPINE_VERSION="3.10"
 ARG GIT_REPO_DOCKERFILE="https://github.com/firepress-org/rclone-in-docker"
 ARG GIT_REPO_SOURCE="https://github.com/rclone/rclone"
-ARG ALPINE_VERSION="3.10"
-
 
 # ----------------------------------------------
 # BUILDER LAYER
