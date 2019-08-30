@@ -4,15 +4,16 @@ rclone in a docker container using CI (continuous integration)
 
 **It features**:
 
-- it builds **everyday** and on every commits
-- it builds from the **go source**
+- it builds **[everyday](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/.github/workflows/docker_build_ci.yml#L8)** and on every commits
+- it builds from the **[go sources](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L27)**
 - it uses **multi-stage** build
-- it uses **alpine** as final image
-- it runs as **non-root**
-- the app runs under **tiny**
-- it push 4 **tags** to registry
-- it uses **labels**
-- it compress the app with **UPX**
+- it uses **[alpine](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L47)** as final image
+- it runs as **[non-root](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L70)**
+- the app runs under **[tiny](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L90)**
+- it push **[four tags](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/.github/workflows/docker_build_ci.yml#L113)** to registry
+- it uses **[Labels](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L73)**
+- it compress the app with **[UPX](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L33)**
+- the docker image size (uncompressed) is ~~ **26MB** ([commit](https://github.com/firepress-org/rclone-in-docker/commit/2090107a0ea3382bee3cd43548c5a1ab79b5e333))
 
 <br>
 
