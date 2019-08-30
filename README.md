@@ -13,7 +13,7 @@ rclone in a docker container using CI (continuous integration)
 - it push **[four tags](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/.github/workflows/docker_build_ci.yml#L113)** to registry
 - it uses **[Labels](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L73)**
 - it compress the app with **[UPX](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L33)**
-- the docker image size (uncompressed) is ~~ **26MB** ([commit](https://github.com/firepress-org/rclone-in-docker/commit/2090107a0ea3382bee3cd43548c5a1ab79b5e333))
+- the docker image's size (uncompressed) is ~~ **26MB** ([commit](https://github.com/firepress-org/rclone-in-docker/commit/2090107a0ea3382bee3cd43548c5a1ab79b5e333))
 
 <br>
 

@@ -59,3 +59,27 @@ I found a way to hack this limitation. Write your VAR on disk (the CI system dis
 3/ Take a look at my yml file here -> https://github.com/firepress-org/rclone-in-docker/blob/master/.github/workflows/docker_build_ci.yml#L20
 
 You'll be a CI ninja for Docker in no time 👊.
+
+## doker history log
+
+This is only to show how efficient this build is.
+
+```
+docker history devmtl/rclone:1.49.1_2019-08-30_00H37s29_d5e6b51
+
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+
+<missing>           7 minutes ago       /bin/sh -c #(nop) COPY --chown=usr_rclone:gr…   19.7MB
+<missing>           7 minutes ago       /bin/sh -c addgroup -S grp_"${APP_NAME}" && …   4.88kB
+<missing>           7 minutes ago       /bin/sh -c set -eux && apk --update --no-cac…   578kB
+<missing>           7 weeks ago         /bin/sh -c #(nop) ADD file:0eb5ea35741d23fe3…   5.58MB
+```
+
+In plain english:
+
+```
+copy rclone binary from the previous stage
+set user group
+install tini
+alpine:3.10
+```
