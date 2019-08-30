@@ -82,7 +82,7 @@ LABEL org.opencontainers.image.title="${APP_NAME}"                              
       org.firepress.image.schemaversion="1.0"
 
 USER usr_"${APP_NAME}"
-WORKDIR /usr/local/bin
+WORKDIR /
 VOLUME /data
 ENTRYPOINT [ "/sbin/tini", "--" ]
 CMD [ "rclone", "--version" ]
