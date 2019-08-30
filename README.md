@@ -1,6 +1,6 @@
 # [rclone](https://github.com/firepress-org/rclone-in-docker)
 
-rclone in a docker container using CI (continuous integration)
+rclone in a docker container using CI (continuous integration).
 
 **It features**:
 
