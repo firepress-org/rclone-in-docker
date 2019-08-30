@@ -66,7 +66,7 @@ docker run --rm -it devmtl/rclone:latest
 ### Example 1
 
 ```
-img_rclone="1.49.1_2019-08-30_12H18s03_4984c21"
+img_rclone="devmtl/rclone:1.49.1_2019-08-30_12H18s03_4984c21"
 
 docker run -it --rm \
   --name rclone-runner \
@@ -76,7 +76,7 @@ docker run -it --rm \
 or overide the default command:
 
 ```
-img_rclone="1.49.1_2019-08-30_12H18s03_4984c21"
+img_rclone="devmtl/rclone:1.49.1_2019-08-30_12H18s03_4984c21"
 run_this="rclone --version"
 
 docker run -it --rm \
@@ -92,7 +92,7 @@ docker run -it --rm \
 Real life example to uplaod on B2
 
 ```
-img_rclone="1.49.1_2019-08-30_12H18s03_4984c21"
+img_rclone="devmtl/rclone:1.49.1_2019-08-30_12H18s03_4984c21"
 run_this="rclone copy --transfers 10 --include ${FILE_TO_UPLOAD} /data ${B2_BUCKET_DESTINATION}"
 
 docker run --rm \
