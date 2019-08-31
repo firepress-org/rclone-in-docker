@@ -61,7 +61,7 @@ devmtl/rclone:latest
 
 <br>
 
-## Running the container
+# How to use it
 
 **Example 1:**
 
