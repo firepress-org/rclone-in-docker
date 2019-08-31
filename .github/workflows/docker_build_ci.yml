@@ -18,11 +18,12 @@ jobs:
 
       - name: A) Define our variables
         run: |
-          # Set these variables:
-          ## to push on dockerhub
+          # Set these variables to push on Docker hub:
           echo "devmtl" > DOCKERHUB_USER
           echo "Dockerfile" > DOCKERFILE_NAME
-          ## to push on Github Package Registry (GPR)
+          # set secret DOCKERHUB_USER in your Github account
+          #
+          ## Set these variables to push on Github Package Registry (GPR)
           echo "firepress" > GITHUB_USER
           echo "firepress-org" > GITHUB_ORG
           echo "registry" > GITHUB_REGISTRY
