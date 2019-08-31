@@ -39,10 +39,10 @@ jobs:
           echo "$(cat GITHUB_USER)/$(cat APP_NAME)" > GITHUB_USER_APP
           #
           # Tags are logically defined
-          echo "$(cat DOCKER_USER_APP):$(cat VERSION)_$(cat DATE_IT)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
-          echo "$(cat DOCKER_USER_APP):stable" > TAG_STABLE
           echo "$(cat DOCKER_USER_APP):latest" > TAG_LATEST
+          echo "$(cat DOCKER_USER_APP):stable" > TAG_STABLE
           echo "$(cat DOCKER_USER_APP):$(cat VERSION)" > TAG_VERSION
+          echo "$(cat DOCKER_USER_APP):$(cat VERSION)_$(cat DATE_IT)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
           #
           # The way we define variables above is a hack. See why: https://bit.ly/2ZEAt6u
 
@@ -104,10 +104,10 @@ jobs:
       - name: Publish
         run: |
           echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
-          docker push $(cat TAG_BEST_PRACTICE)
-          docker push $(cat TAG_VERSION)
-          docker push $(cat TAG_STABLE)
           docker push $(cat TAG_LATEST)
+          docker push $(cat TAG_STABLE)
+          docker push $(cat TAG_VERSION)
+          docker push $(cat TAG_BEST_PRACTICE)
           #
           # push on Github Package Registry (GPR)
           # echo "ToDo/ docker build -t docker.pkg.github.com/$(cat GITHUB_ORG)/$(cat GITHUB_REGISTRY)/$(cat TAG_BEST_PRACTICE)"
