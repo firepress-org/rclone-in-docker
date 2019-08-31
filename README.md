@@ -1,19 +1,19 @@
-# [rclone](https://github.com/firepress-org/rclone-in-docker)
+# [rclone-in-docker](https://github.com/firepress-org/rclone-in-docker)
 
-rclone in a docker container using CI (continuous integration).
+rclone in a docker container using CI (continuous integration). It uses best practices: rebuild everyday, multi-stage builds, non-root, upx, labels, alpine, etc
 
 **It features**:
 
-- it builds **[everyday](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/.github/workflows/docker_build_ci.yml#L8)** and on every commits
-- it builds from the **[go sources](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L27)**
+- it builds **everyday** and on every commits
+- it builds from the **go sources**
 - it uses **multi-stage** build
-- it uses **[alpine](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L47)** as final image
-- it runs as **[non-root](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L70)**
-- the app runs under **[tiny](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L90)**
-- it push **[four tags](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/.github/workflows/docker_build_ci.yml#L113)** to registry
-- it uses **[Labels](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L73)**
+- it uses **alpine** as final image
+- it runs as **non-root**
+- the app runs under[**tiny**](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L90)
+- it push **four tags** to registry
+- it uses **Labels**
 - it compress the app with **[UPX](https://github.com/firepress-org/rclone-in-docker/blob/2090107a0ea3382bee3cd43548c5a1ab79b5e333/Dockerfile#L33)**
-- the docker image's size (uncompressed) is ~~ **26MB** ([commit](https://github.com/firepress-org/rclone-in-docker/commit/2090107a0ea3382bee3cd43548c5a1ab79b5e333))
+- the docker image's size (uncompressed) is ~~ **26MB**
 
 <br>
 
@@ -63,7 +63,7 @@ devmtl/rclone:latest
 
 ## Running the container
 
-### Example 1
+**Example 1:**
 
 ```
 img_rclone="devmtl/rclone:1.49.1_2019-08-30_12H18s03_4984c21"
@@ -87,7 +87,7 @@ docker run -it --rm \
   sh -c "${run_this}"
 ```
 
-### Example 2
+**Example 2:**
 
 Real life example to upload on B2
 
