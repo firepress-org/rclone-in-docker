@@ -60,9 +60,9 @@ I found a way to hack this limitation. Write your VAR on disk (the CI system dis
 
 You'll be a CI ninja for Docker in no time 👊.
 
-## doker history log
+## Docker history log
 
-This is only to show how efficient this build is.
+I included an docker history in the CI. This is only to show how efficient this build is. Per example:
 
 ```
 docker history devmtl/rclone:1.49.1_2019-08-30_00H37s29_d5e6b51
