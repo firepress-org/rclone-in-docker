@@ -54,9 +54,9 @@ devmtl/rclone:1.49.1_2019-08-30_12H18s03_4984c21
 These tags are also available to quickly test stuff:
 
 ```
-docker run --rm -it devmtl/rclone:1.49.1
-docker run --rm -it devmtl/rclone:stable
-docker run --rm -it devmtl/rclone:latest
+devmtl/rclone:1.49.1
+devmtl/rclone:stable
+devmtl/rclone:latest
 ```
 
 <br>
@@ -89,7 +89,7 @@ docker run -it --rm \
 
 ### Example 2
 
-Real life example to uplaod on B2
+Real life example to upload on B2
 
 ```
 img_rclone="devmtl/rclone:1.49.1_2019-08-30_12H18s03_4984c21"
