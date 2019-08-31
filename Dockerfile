@@ -30,7 +30,7 @@ RUN git clone "${GIT_REPO_SOURCE}" --single-branch --depth 1 -b "v${VERSION}" . 
 # Compress binary
 RUN upx /usr/local/bin/"${APP_NAME}" && \
     upx -t /usr/local/bin/"${APP_NAME}" && \
-    rclone --version
+    "${APP_NAME}" --version
 
 # Run as non-root
 RUN addgroup -S grp_"${APP_NAME}" && \
