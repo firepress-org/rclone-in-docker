@@ -156,15 +156,6 @@ Check this post for more details: [Contributing to our Github project](https://p
 ## License
 
 - This git repo is under the **GNU V3** license. [Find it here](https://github.com/pascalandy/GNU-GENERAL-PUBLIC-LICENSE/blob/master/LICENSE.md).
-- The Ghost’s software is under the **MIT** license. [Find it here](https://ghost.org/license/).
-
-<br>
-
-
-## Sources & Fork
-
-- This Git repo is available at [https://github.com/firepress-org/ghostfire](https://github.com/firepress-org/ghostfire)
-- Forked from the [official](https://github.com/docker-library/ghost/) Ghost image
 
 <br>
 
