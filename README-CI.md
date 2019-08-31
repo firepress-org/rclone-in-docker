@@ -10,16 +10,14 @@ To « dockerfile CI everything » we need to keep a consistent format by definin
 
 This will help you to consistently build for every project you manage.
 
-**1) In the Dockerfile, ensure to have these, and update:**
+**1) Dockerfile:**
 
 ```
 ARG APP_NAME="rclone"
 ARG VERSION="1.49.0"
 ```
 
-**2) In the dockerfile_ci.yml, update:**
-
-It's under `./git_repo/.github/workflows/dockerfile_ci.yml`
+**2) In the dockerfile_ci.yml**
 
 ```
 ## to push on dockerhub
@@ -32,13 +30,15 @@ echo "firepress-org" > GITHUB_ORG
 echo "registry" > GITHUB_REGISTRY
 ```
 
-**3) Set up this secret your Github repo:**
+Location: `./git_repo/.github/workflows/dockerfile_ci.yml`
 
-It's under `settings/secrets`
+**3) Secret your Github account:**
 
 ```
 DOCKER_PASSWORD
 ```
+
+Location: `settings/secrets`
 
 <br>
 
