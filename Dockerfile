@@ -84,7 +84,7 @@ RUN set -eux && apk --update --no-cache add \
 RUN set -eux && addgroup -S grp_"${USER}" && \
     adduser -S "${USER}" -G grp_"${USER}"
 
-COPY --from=gobuilder --chown="${APP_NAME}":grp_"${APP_NAME}" /usr/local/bin/"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
+COPY --from=gobuilder --chown="${USER}":grp_"${USER}" /usr/local/bin/"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
 WORKDIR /usr/local/bin
 VOLUME [ "/home/onfire/.config/rclone", "/data" ]
 USER "${USER}"
