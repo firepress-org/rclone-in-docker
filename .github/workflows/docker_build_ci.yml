@@ -1,8 +1,8 @@
-# GNU v3 | Please credit my work if you are re-using some of it :)
-# by Pascal Andy | https://pascalandy.com/blog/now/
-
 # The beauty of this CI setup is that it will build any valid DOCKERFILE by setting a few variables.
 # See how at https://github.com/firepress-org/rclone-in-docker/blob/master/README-CI.md
+#
+# GNU v3 | Please credit the author if you are re-using some of it :-p
+# by Pascal Andy | https://pascalandy.com/blog/now/
 
 name: docker_build_ci
 on:
@@ -96,7 +96,7 @@ jobs:
       - name: Logs / docker (inspect, history, version, info), uname
         run: |
           docker inspect $(cat TAG_UAT)
-          docker history $(cat TAG_UAT)
+          docker history $(cat TAG_UAT) --no-trunc
           docker version
           docker info
           uname -a
