@@ -1,5 +1,6 @@
 ARG VERSION="1.49.1"
 ARG APP_NAME="rclone"
+ARG USER="onfire"
 ARG ALPINE_VERSION="3.10"
 ARG GIT_REPO_DOCKERFILE="https://github.com/firepress-org/rclone-in-docker"
 ARG GIT_REPO_SOURCE="https://github.com/rclone/rclone"
@@ -14,6 +15,7 @@ FROM golang:alpine${ALPINE_VERSION} AS gobuilder
 
 ARG APP_NAME
 ARG VERSION
+ARG USER
 ARG GIT_REPO_SOURCE
 
 # Install common utilities
@@ -47,6 +49,7 @@ FROM alpine:${ALPINE_VERSION} AS final
 
 ARG VERSION
 ARG APP_NAME
+ARG USER
 ARG ALPINE_VERSION
 ARG GIT_REPO_DOCKERFILE
 
@@ -67,7 +70,7 @@ LABEL org.opencontainers.image.title="${APP_NAME}"                              
       org.opencontainers.image.revision="${SOURCE_COMMIT}"                                      \
       org.opencontainers.image.source="${GIT_REPO_DOCKERFILE}"                                  \
       org.opencontainers.image.licenses="GNUv3. See README.md"                                  \
-      org.firepress.image.user="usr_${APP_NAME}"                                                \
+      org.firepress.image.user="${USER}"                                                \
       org.firepress.image.alpineversion="{ALPINE_VERSION}"                                      \
       org.firepress.image.field1="not_set"                                                      \
       org.firepress.image.field2="not_set"                                                      \
