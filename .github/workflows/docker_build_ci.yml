@@ -21,11 +21,12 @@ jobs:
 
       - name: Define variables
         run: |
-          # Set these variables to push on Docker hub:
+          # Set variables for Docker hub:
           echo "devmtl" > DOCKERHUB_USER
           echo "Dockerfile" > DOCKERFILE_NAME
+          # required secrets on github: DOCKERHUB_PASSWORD, TOKEN_SLACK
           #
-          # Set these variables to push on Github Package Registry (GPR)
+          # Set variables for Github Package Registry (GPR)
           echo "firepress" > GITHUB_USER
           echo "firepress-org" > GITHUB_ORG
           echo "registry" > GITHUB_REGISTRY
@@ -114,7 +115,6 @@ jobs:
           # echo "ToDo/ docker login docker.pkg.github.com -u $(cat GITHUB_USER) -p ${{ secrets.GPR_PASS }}"
           # echo "ToDo/ docker push docker.pkg.github.com/$(cat GITHUB_ORG)/$(cat GITHUB_REGISTRY)/$(cat TAG_BEST_PRACTICE)"
 
-  # Push README.md on the Docker hub's "Full Description" section
   Job2:
     needs: job1
     name: Job 2/3
@@ -126,28 +126,39 @@ jobs:
         run: |
           echo "devmtl" > DOCKERHUB_USER
           cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
-          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DOCKER_USER_APP
-      
-      # Buggy at the moment :-(
-      #
-      #- name: Push Full Description on Dockerhub
-      #  uses: docker://mpepping/docker-hub-metadata-github-action
-      #  env:
-      #    IMAGE: $(cat DOCKER_USER_APP)
-      #    DOCKER_USERNAME: $(cat DOCKERHUB_USER)
-      #    DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+          cat Dockerfile | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
+          git rev-parse --short HEAD > SHORT_COMMIT_HASH
+          echo "$(cat APP_NAME):$(cat VERSION) / $(cat SHORT_COMMIT_HASH)" > NOTI_MESSAGE
 
-  Job3:
-    needs: job1
-    name: Job 3/3
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@master
+      - name: Push README to dockerhub description
+        run: |
+          docker run --rm \
+            -v $(pwd)/README.md:/data/README.md \
+            -e DOCKERHUB_USERNAME=$(cat DOCKERHUB_USER) \
+            -e DOCKERHUB_PASSWORD=${{ secrets.DOCKERHUB_PASSWORD }} \
+            -e DOCKERHUB_REPO_PREFIX=$(cat DOCKERHUB_USER) \
+            -e DOCKERHUB_REPO_NAME=$(cat APP_NAME) \
+            devmtl/readme-to-dockerhub:stable
 
-      - name: Afterbuild (brainstorm & use cases)
+      - name: Notify on Slack
+        run: |
+          docker run --rm \
+            --name noti \
+            -e NOTI_MESSAGE="$(cat NOTI_MESSAGE)" \
+            -e SLACK_CHANNEL="github-actions" \
+            -e SLACK_TOKEN_CRON="${{ secrets.TOKEN_SLACK }}" \
+            devmtl/noti:stable sh -c \
+            ' NOTI_SLACK_TOKEN="$SLACK_TOKEN_CRON" \
+              NOTI_SLACK_CHANNEL="$SLACK_CHANNEL" \
+              noti -k -m "$NOTI_MESSAGE" '
+
+      - name: Other ideas
         run: |
           echo " "
-          # echo "brainstorm/ notify succes on slack"
-          # echo "brainstorm/ push a webhook to our cluster. The CD part of CI/CD"
-          # echo "brainstorm/ SSH on on node to do X"
-          # echo "brainstorm/ For webapps, do an healthcheck in prod cluster"
+          # rule/ if an app's version doesn't have a related tags on the git repo, push and commit a tag on github.
+          # rule/ Master branch = push 4 tag / if not master branch push only tag edge
+          # rule/ If anything fails on any jobs, send on notification to Slack
+          #
+          # Push a webhook to our cluster. The CD part of CI/CD"
+          #     ... SSH on node to do X"
+          #     ... for webapps, do an healthcheck in prod cluster"
