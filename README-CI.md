@@ -2,43 +2,48 @@
 
 [Back to README.md](./README.md)
 
-## « Dockerfile CI everything » requirements
+## Introduction
 
-You see the beauty of this? Assuming you have a valid Dockerfile, you only have to set a few environment variables. You are doing CI like a chef and making the world a better place. 
+Let's Dockerfile CI everything!
 
-To « dockerfile CI everything » we need to keep a consistent format by defining a few **variables**. Thanks to **Github Actions**, it's now very quick to set up a CI for your Dockerfile (and every project really).
+Assuming you have a valid Dockerfile, you only have to set a few environment variables directly in your Dockerfile and you will do CI like a chef and make the world a better place by the same token. 
+
+To « dockerfile CI everything » we need to keep a consistent format by defining a few **variables**. Thanks to **Github Actions**, it's now very quick to set up a CI for your Dockerfile (and any kind of projects really).
 
 This will help you to consistently build for every project you manage.
 
-**1) Dockerfile:**
+**1) Set variables in Dockerfile:**
 
 ```
-ARG APP_NAME="rclone"
-ARG VERSION="1.49.0"
+ARG VERSION="3.2.0"
+ARG APP_NAME="noti"
+ARG DOCKERHUB_USER="devmtl"
+ARG GITHUB_USER="firepress"
+ARG GITHUB_ORG="firepress-org"
+ARG GITHUB_REGISTRY="registry"
+#
+ARG USER="onfire"
+ARG ALPINE_VERSION="3.10"
+ARG GIT_REPO_URL="https://github.com/firepress-org/noti-in-docker"
+ARG GIT_REPO_SOURCE="https://github.com/variadico/noti"
 ```
 
-**2) In the dockerfile_ci.yml**
-
-```
-## to push on dockerhub
-echo "devmtl" > DOCKERHUB_USER
-echo "Dockerfile" > DOCKERFILE_NAME
-
-## to push on Github Package Registry (GPR)
-echo "firepress" > GITHUB_USER
-echo "firepress-org" > GITHUB_ORG
-echo "registry" > GITHUB_REGISTRY
-```
-
-Location: `./git_repo/.github/workflows/dockerfile_ci.yml`
-
-**3) Secret your Github account:**
+**2) Set secrets in your Github account:**
 
 ```
 DOCKER_PASSWORD
 ```
 
-Location: `settings/secrets`
+```
+# this is optional
+TOKEN_SLACK
+```
+
+Location: `git_repo_name/settings/secrets`
+
+**3) Your Dockerfile name is not standard?**
+
+If you Dockerfile is difference than `Dockerfile`, change it in the YAML files under `/project_name/.github/workflows/*.yml`
 
 <br>
 
@@ -58,28 +63,9 @@ I found a way to hack this limitation. Write your VAR on disk (the CI system dis
 
 3/ Take a look at my yml file here -> https://github.com/firepress-org/rclone-in-docker/blob/master/.github/workflows/docker_build_ci.yml#L20
 
-You'll be a CI ninja for Docker in no time 👊.
+## Building from master VS from other branches
 
-## Docker history log
+You'll find two YML files for that reason.
 
-I included an docker history in the CI. This is only to show how efficient this build is. Per example:
-
-```
-docker history devmtl/rclone:1.49.1_2019-08-30_00H37s29_d5e6b51
-
-IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
-
-<missing>           7 minutes ago       /bin/sh -c #(nop) COPY --chown=usr_rclone:gr…   19.7MB
-<missing>           7 minutes ago       /bin/sh -c addgroup -S grp_"${APP_NAME}" && …   4.88kB
-<missing>           7 minutes ago       /bin/sh -c set -eux && apk --update --no-cac…   578kB
-<missing>           7 weeks ago         /bin/sh -c #(nop) ADD file:0eb5ea35741d23fe3…   5.58MB
-```
-
-In plain english:
-
-```
-copy rclone binary from the previous stage
-set user group
-install tini
-alpine:3.10
-```
+Cheers!
+Pascal | https://twitter.com/askpascalandy
