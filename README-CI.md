@@ -1,5 +1,5 @@
-## README
 
+<<<<<<< HEAD
 [Back to README.md](./README.md)
 
 ## Introduction
@@ -46,9 +46,13 @@ Location: `git_repo_name/settings/secrets`
 If you Dockerfile is difference than `Dockerfile`, change it in the YAML files under `/project_name/.github/workflows/*.yml`
 
 <br>
+=======
+## Please refer to
+>>>>>>> edge
 
-## Hacking Github Actions
+https://github.com/firepress-org/rclone-in-docker/blob/master/README-CI.md
 
+<<<<<<< HEAD
 1/ Here is a great hack to use on your @github actions.
 
 The pain is that when you set variables in a step in your workflow, further steps can NOT see the VAR 🙊.
@@ -69,3 +73,6 @@ You'll find two YML files for that reason.
 
 Cheers!
 Pascal | https://twitter.com/askpascalandy
+=======
+[Back to README.md](./README.md)
+>>>>>>> edge

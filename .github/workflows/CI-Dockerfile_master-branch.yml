@@ -1,39 +1,39 @@
 # The beauty of this CI setup is that it will build any valid DOCKERFILE by setting a few variables.
 # See how at https://github.com/firepress-org/rclone-in-docker/blob/master/README-CI.md
+# Requires secrets on github: DOCKERHUB_PASSWORD, TOKEN_SLACK
+# Update DOCKERFILE_NAME if you are using a special Dockerfile name
+# The way we define variables is a hack. See why: https://bit.ly/2ZEAt6u
 #
 # GNU v3 | Please credit the author if you are re-using some of it :-p
 # by Pascal Andy | https://pascalandy.com/blog/now/
 
-name: docker_build_ci
+name: CI-Dockerfile_master-branch
 on:
-  pull_request:
-  push:
   schedule:
-    - cron:  '0 8 * * *'
-    # everyday at 8 am
+    - cron: '0 8 * * *'
+  push:
+    branches:
+      - master
 jobs:
 
   Job1:
-    name: Job 1/3
+    name: Job 1 of 2
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@master
 
       - name: Define variables
         run: |
-          # Set variables for Docker hub:
-          echo "devmtl" > DOCKERHUB_USER
           echo "Dockerfile" > DOCKERFILE_NAME
-          # required secrets on github: DOCKERHUB_PASSWORD, TOKEN_SLACK
-          #
-          # Set variables for Github Package Registry (GPR)
-          echo "firepress" > GITHUB_USER
-          echo "firepress-org" > GITHUB_ORG
-          echo "registry" > GITHUB_REGISTRY
           #
           # Logically defined
-          cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
-          cat Dockerfile | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
+          cat $(cat DOCKERFILE_NAME) | grep DOCKERHUB_USER= | head -n 1 | grep -o '".*"' | sed 's/"//g' > DOCKERHUB_USER
+          cat $(cat DOCKERFILE_NAME) | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
+          cat $(cat DOCKERFILE_NAME) | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
+          cat $(cat DOCKERFILE_NAME) | grep GITHUB_USER= | head -n 1 | grep -o '".*"' | sed 's/"//g' > GITHUB_USER
+          cat $(cat DOCKERFILE_NAME) | grep GITHUB_ORG= | head -n 1 | grep -o '".*"' | sed 's/"//g' > GITHUB_ORG
+          cat $(cat DOCKERFILE_NAME) | grep GITHUB_REGISTRY= | head -n 1 | grep -o '".*"' | sed 's/"//g' > GITHUB_REGISTRY
+          #
           date -d "-4 hours" "+%Y-%m-%d_%HH%Ms%S" > DATE_IT
           git rev-parse --short HEAD > SHORT_COMMIT_HASH
           echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DOCKER_USER_APP
@@ -44,8 +44,6 @@ jobs:
           echo "$(cat DOCKER_USER_APP):stable" > TAG_STABLE
           echo "$(cat DOCKER_USER_APP):$(cat VERSION)" > TAG_VERSION
           echo "$(cat DOCKER_USER_APP):$(cat VERSION)_$(cat DATE_IT)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
-          #
-          # The way we define variables above is a hack. See why: https://bit.ly/2ZEAt6u
 
       - name: Build
         run: |
@@ -62,15 +60,8 @@ jobs:
 
       - name: Test image with docker-library
         run: |
-          git clone https://github.com/docker-library/official-images.git official-images
+          git clone --depth 1 https://github.com/docker-library/official-images.git official-images
           official-images/test/run.sh $(cat TAG_UAT)
-
-      - name: Test image with Aquasec microscanner
-        run: |
-          wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
-          #
-          echo "The build will stop only if it finds a critical issue"
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest -q --exit-code 1 --severity CRITICAL $(cat TAG_UAT)
 
       - name: Logs / All tags & variables
         run: |
@@ -117,18 +108,23 @@ jobs:
 
   Job2:
     needs: job1
-    name: Job 2/3
+    name: Job 2 of 2
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@master
 
       - name: Define variables
         run: |
-          echo "devmtl" > DOCKERHUB_USER
-          cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
-          cat Dockerfile | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
+          echo "Dockerfile" > DOCKERFILE_NAME  
+          cat $(cat DOCKERFILE_NAME) | grep DOCKERHUB_USER= | head -n 1 | grep -o '".*"' | sed 's/"//g' > DOCKERHUB_USER
+          cat $(cat DOCKERFILE_NAME) | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
+          cat $(cat DOCKERFILE_NAME) | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
           git rev-parse --short HEAD > SHORT_COMMIT_HASH
           echo "$(cat APP_NAME):$(cat VERSION) / $(cat SHORT_COMMIT_HASH)" > NOTI_MESSAGE
+          #
+          # Tags are logically defined
+          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DOCKER_USER_APP
+          echo "$(cat DOCKER_USER_APP):latest" > TAG_LATEST
 
       - name: Push README to dockerhub description
         run: |
@@ -152,13 +148,15 @@ jobs:
               NOTI_SLACK_CHANNEL="$SLACK_CHANNEL" \
               noti -k -m "$NOTI_MESSAGE" '
 
-      - name: Other ideas
+      # Added it here is it take in average 4 min to complete.
+      - name: Test image with Aquasec microscanner
         run: |
-          echo " "
-          # rule/ if an app's version doesn't have a related tags on the git repo, push and commit a tag on github.
-          # rule/ Master branch = push 4 tag / if not master branch push only tag edge
-          # rule/ If anything fails on any jobs, send on notification to Slack
+          wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
-          # Push a webhook to our cluster. The CD part of CI/CD"
-          #     ... SSH on node to do X"
-          #     ... for webapps, do an healthcheck in prod cluster"
+          echo "The build will stop only if it finds a critical issue"
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest \
+            -q --exit-code 1 --severity CRITICAL $(cat TAG_LATEST)
+
+      - name: Github Actions ideas to implements
+        run: |
+          echo "see —> https://gist.github.com/pascalandy/4e499b7c42023836a7d207277923fc09"

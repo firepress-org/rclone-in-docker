@@ -1,14 +1,20 @@
+# Those vars are used broadly outside this very Dockerfile
+# Github Action CI and release script (./utility.sh) is consuming variables from here.
+
 ARG VERSION="1.49.1"
 ARG APP_NAME="rclone"
 ARG GIT_PROJECT_NAME="rclone-in-docker"
 #
-ARG USER="onfire"
 ARG ALPINE_VERSION="3.10"
-ARG GIT_REPO_DOCKERFILE="https://github.com/firepress-org/rclone-in-docker"
+ARG USER="onfire"
+#
+ARG DOCKERHUB_USER="devmtl"
+ARG GITHUB_USER="firepress"
+ARG GITHUB_ORG="firepress-org"
+ARG GITHUB_REGISTRY="registry"
+#
+ARG GIT_REPO_DOCKERFILE="null"
 ARG GIT_REPO_SOURCE="https://github.com/rclone/rclone"
-
-# GNU v3 | Please credit my work if you are re-using some of it :)
-# by Pascal Andy | https://pascalandy.com/blog/now/
 
 # ----------------------------------------------
 # BUILDER LAYER
@@ -23,37 +29,37 @@ ARG GIT_REPO_SOURCE
 # Install common utilities
 RUN set -eux && apk --update --no-cache add \
     bash wget curl git openssl ca-certificates upx
+
 # Install common Go dependencies
 RUN set -eux && apk --update --no-cache add \
     -t build-deps libc-dev gcc libgcc
 
 # Compile Go app
 WORKDIR /go/src/github.com/rclone/rclone
-RUN set -eux && git clone "${GIT_REPO_SOURCE}" --single-branch --depth 1 -b "v${VERSION}" . && \
+RUN git clone "${GIT_REPO_SOURCE}" --single-branch --depth 1 -b "v${VERSION}" . && \
     git checkout -b "v${VERSION}" && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -o /usr/local/bin/"${APP_NAME}"
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /usr/local/bin/"${APP_NAME}"
 
 # Compress binary
-RUN set -eux && upx /usr/local/bin/"${APP_NAME}" && \
+RUN upx /usr/local/bin/"${APP_NAME}" && \
     upx -t /usr/local/bin/"${APP_NAME}" && \
-    "${APP_NAME}" --version
+    rclone --version
 
-# Create a non-root user
-RUN set -eux && addgroup -S grp_"${USER}" && \
-    adduser -S "${USER}" -G grp_"${USER}" && \
-    chown "${USER}":grp_"${USER}" /usr/local/bin/"${APP_NAME}"
+# Run as non-root
+RUN addgroup -S grp_"${APP_NAME}" && \
+    adduser -S usr_"${APP_NAME}" -G grp_"${APP_NAME}" && \
+    chown usr_"${APP_NAME}":grp_"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
 
 # ----------------------------------------------
 # FINAL LAYER
 # ----------------------------------------------
 FROM alpine:${ALPINE_VERSION} AS final
 
-ARG VERSION
 ARG APP_NAME
+ARG VERSION
 ARG USER
+ARG GIT_REPO
 ARG ALPINE_VERSION
-ARG GIT_REPO_DOCKERFILE
 
 ENV APP_NAME="${APP_NAME}"
 ENV VERSION="${VERSION}"
@@ -62,6 +68,16 @@ ENV ALPINE_VERSION="${ALPINE_VERSION}"
 
 ENV CREATED_DATE="$(date "+%Y-%m-%d_%HH%Ms%S")"
 ENV SOURCE_COMMIT="$(git rev-parse --short HEAD)"
+
+# Install basics
+RUN set -eux && apk --update --no-cache add \
+    ca-certificates tini
+
+# Run as non-root
+RUN addgroup -S grp_"${USER}" && \
+    adduser -S "${USER}" -G grp_"${USER}"
+
+COPY --from=gobuilder --chown="${USER}":grp_"${USER}" /usr/local/bin/"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
 
 # Best practice credit: https://github.com/opencontainers/image-spec/blob/master/annotations.md
 LABEL org.opencontainers.image.title="${APP_NAME}"                                              \
@@ -78,17 +94,8 @@ LABEL org.opencontainers.image.title="${APP_NAME}"                              
       org.firepress.image.field2="not_set"                                                      \
       org.firepress.image.schemaversion="1.0"
 
-# Install basics
-RUN set -eux && apk --update --no-cache add \
-    ca-certificates tini
-
-# Create a non-root user
-RUN set -eux && addgroup -S grp_"${USER}" && \
-    adduser -S "${USER}" -G grp_"${USER}"
-
-COPY --from=gobuilder --chown="${USER}":grp_"${USER}" /usr/local/bin/"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
-WORKDIR /usr/local/bin
-VOLUME [ "/home/onfire/.config/rclone", "/data" ]
 USER "${USER}"
+WORKDIR /usr/local/bin
+VOLUME [ "/home/usr_rclone/.config/rclone", "/data" ]
 ENTRYPOINT [ "/sbin/tini", "--" ]
 CMD [ "rclone", "--version" ]
