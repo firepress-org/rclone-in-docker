@@ -1,5 +1,7 @@
 ARG VERSION="1.49.1"
 ARG APP_NAME="rclone"
+ARG GIT_PROJECT_NAME="rclone-in-docker"
+#
 ARG USER="onfire"
 ARG ALPINE_VERSION="3.10"
 ARG GIT_REPO_DOCKERFILE="https://github.com/firepress-org/rclone-in-docker"
