@@ -12,6 +12,10 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
+## 1.49.2-r1
+### ⚡️ Updates
+- 1a118938 DockerfileUpdated to version: 1.49.2
+
 ## 1.49.1
 ### ⚡️ Updates
 - 3a586bc Major README update
