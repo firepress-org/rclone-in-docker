@@ -12,7 +12,7 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
-## 1.49-r2
+## 1.49.2-r2
 ### ⚡️ Updates
 - 4000812 Update Slack notification for edge image
 
