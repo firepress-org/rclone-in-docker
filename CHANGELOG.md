@@ -12,6 +12,10 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
+## 1.49-r2
+### ⚡️ Updates
+- 4000812 Update Slack notification for edge image
+
 ## 1.49.2-r1
 ### ⚡️ Updates
 - 1a118938 DockerfileUpdated to version: 1.49.2
