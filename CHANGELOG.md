@@ -12,6 +12,10 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
+## 1.49.3-r1
+### ⚡️ Updates
+- 1d8175a Dockerfile, add BASE IMAGE VERSIONNING LAYER / squashed
+
 ## 1.49.3
 ### ⚡️ Updates
 - 6d4aa82 Updated to version: 1.49.3
