@@ -1,5 +1,5 @@
-# Those vars are used broadly outside this very Dockerfile
-# Github Action CI and release script (./utility.sh) is consuming variables from here.
+# Those vars are used broadly outside this Dockerfile
+# Github Action CI and release script (./utility.sh) is consuming these variables.
 
 ARG VERSION="1.49.3"
 ARG APP_NAME="rclone"
@@ -13,18 +13,77 @@ ARG GITHUB_USER="firepress"
 ARG GITHUB_ORG="firepress-org"
 ARG GITHUB_REGISTRY="registry"
 #
-ARG GIT_REPO_DOCKERFILE="null"
+ARG GIT_REPO_DOCKERFILE="https://github.com/firepress-org/rclone-in-docker"
 ARG GIT_REPO_SOURCE="https://github.com/rclone/rclone"
+
+
+# ----------------------------------------------
+# BASE IMAGE VERSIONNING LAYER
+# ----------------------------------------------
+FROM alpine:${ALPINE_VERSION} AS myalpine
+FROM golang:alpine${ALPINE_VERSION} AS mygolang
+# Credit to Tõnis Tiigi / https://bit.ly/2RoCmvG
+
+
+# ----------------------------------------------
+# ALPINEBASE LAYER
+# ----------------------------------------------
+FROM myalpine AS alpinebase
+
+ARG APP_NAME
+ARG VERSION
+ARG USER
+ARG ALPINE_VERSION
+ARG GIT_REPO_DOCKERFILE
+ARG GIT_REPO_SOURCE
+
+ENV APP_NAME="${APP_NAME}"
+ENV VERSION="${VERSION}"
+ENV USER="${USER}"
+ENV GIT_REPO_DOCKERFILE="${GIT_REPO_DOCKERFILE}"
+ENV GIT_REPO_SOURCE="${GIT_REPO_SOURCE}"
+ENV ALPINE_VERSION="${ALPINE_VERSION}"
+
+ENV CREATED_DATE="$(date "+%Y-%m-%d_%HH%Ms%S")"
+ENV SOURCE_COMMIT="$(git rev-parse --short HEAD)"
+
+# Install basics
+RUN set -eux && apk --update --no-cache add \
+    ca-certificates tini
+# Set user as non-root and group
+RUN addgroup -S grp_"${USER}" && \
+    adduser -S "${USER}" -G grp_"${USER}"
+
+# Best practice credit: https://github.com/opencontainers/image-spec/blob/master/annotations.md
+LABEL org.opencontainers.image.title="${APP_NAME}"                                              \
+      org.opencontainers.image.version="${VERSION}"                                             \
+      org.opencontainers.image.description="See README.md"                                      \
+      org.opencontainers.image.authors="Pascal Andy https://firepress.org/en/contact/"          \
+      org.opencontainers.image.created="${CREATED_DATE}"                                        \
+      org.opencontainers.image.revision="${SOURCE_COMMIT}"                                      \
+      org.opencontainers.image.source="${GIT_REPO_DOCKERFILE}"                                  \
+      org.opencontainers.image.licenses="GNUv3. See README.md"                                  \
+      org.firepress.image.user="${USER}"                                                \
+      org.firepress.image.alpineversion="{ALPINE_VERSION}"                                      \
+      org.firepress.image.field1="not_set"                                                      \
+      org.firepress.image.field2="not_set"                                                      \
+      org.firepress.image.schemaversion="1.0"
+
 
 # ----------------------------------------------
 # BUILDER LAYER
 # ----------------------------------------------
-FROM golang:alpine${ALPINE_VERSION} AS gobuilder
+FROM mygolang AS gobuilder
 
 ARG APP_NAME
 ARG VERSION
 ARG USER
 ARG GIT_REPO_SOURCE
+
+ENV APP_NAME="${APP_NAME}"
+ENV VERSION="${VERSION}"
+ENV USER="${USER}"
+ENV GIT_REPO_SOURCE="${GIT_REPO_SOURCE}"
 
 # Install common utilities
 RUN set -eux && apk --update --no-cache add \
@@ -46,56 +105,26 @@ RUN upx /usr/local/bin/"${APP_NAME}" && \
     rclone --version
 
 # Run as non-root
-RUN addgroup -S grp_"${APP_NAME}" && \
-    adduser -S usr_"${APP_NAME}" -G grp_"${APP_NAME}" && \
-    chown usr_"${APP_NAME}":grp_"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
+RUN addgroup -S grp_"${USER}" && \
+    adduser -S "${USER}" -G grp_"${USER}" && \
+    chown "${USER}":grp_"${USER}" /usr/local/bin/"${APP_NAME}"
+
 
 # ----------------------------------------------
 # FINAL LAYER
 # ----------------------------------------------
-FROM alpine:${ALPINE_VERSION} AS final
+FROM alpinebase AS final
 
 ARG APP_NAME
-ARG VERSION
 ARG USER
-ARG GIT_REPO
-ARG ALPINE_VERSION
 
 ENV APP_NAME="${APP_NAME}"
-ENV VERSION="${VERSION}"
-ENV GIT_REPO_DOCKERFILE="${GIT_REPO_DOCKERFILE}"
-ENV ALPINE_VERSION="${ALPINE_VERSION}"
-
-ENV CREATED_DATE="$(date "+%Y-%m-%d_%HH%Ms%S")"
-ENV SOURCE_COMMIT="$(git rev-parse --short HEAD)"
-
-# Install basics
-RUN set -eux && apk --update --no-cache add \
-    ca-certificates tini
-
-# Run as non-root
-RUN addgroup -S grp_"${USER}" && \
-    adduser -S "${USER}" -G grp_"${USER}"
+ENV USER="${USER}"
 
 COPY --from=gobuilder --chown="${USER}":grp_"${USER}" /usr/local/bin/"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
 
-# Best practice credit: https://github.com/opencontainers/image-spec/blob/master/annotations.md
-LABEL org.opencontainers.image.title="${APP_NAME}"                                              \
-      org.opencontainers.image.version="${VERSION}"                                             \
-      org.opencontainers.image.description="See README.md"                                      \
-      org.opencontainers.image.authors="Pascal Andy https://firepress.org/en/contact/"          \
-      org.opencontainers.image.created="${CREATED_DATE}"                                        \
-      org.opencontainers.image.revision="${SOURCE_COMMIT}"                                      \
-      org.opencontainers.image.source="${GIT_REPO_DOCKERFILE}"                                  \
-      org.opencontainers.image.licenses="GNUv3. See README.md"                                  \
-      org.firepress.image.user="${USER}"                                                \
-      org.firepress.image.alpineversion="{ALPINE_VERSION}"                                      \
-      org.firepress.image.field1="not_set"                                                      \
-      org.firepress.image.field2="not_set"                                                      \
-      org.firepress.image.schemaversion="1.0"
-
 USER "${USER}"
 WORKDIR /usr/local/bin
-VOLUME [ "/home/usr_rclone/.config/rclone", "/data" ]
+VOLUME [ "/home/onfire/.config/rclone", "/data" ]
 ENTRYPOINT [ "/sbin/tini", "--" ]
 CMD [ "rclone", "--version" ]
