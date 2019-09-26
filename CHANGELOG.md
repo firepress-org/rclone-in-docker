@@ -12,6 +12,14 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
+## 1.49.3-r2
+### ⚡️ Updates
+
+🚀 New feat. i In addition to dockerhub, we also push the docker image on Github Package Registry
+
+- c121342 Introducing CI on GPR /for master / squashed
+- da74849 Introducing CI on GPR /for edge squashed
+
 ## 1.49.3-r1
 ### ⚡️ Updates
 - 1d8175a Dockerfile, add BASE IMAGE VERSIONNING LAYER / squashed
