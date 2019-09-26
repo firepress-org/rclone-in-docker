@@ -71,6 +71,14 @@ LABEL org.opencontainers.image.title="${APP_NAME}"                              
 
 
 # ----------------------------------------------
+# UPGRADE LAYER
+# The point is to keep trace of logs our CI
+# ----------------------------------------------
+FROM alpinebase AS what-to-upgrade
+RUN set -eux && apk update && apk upgrade
+
+
+# ----------------------------------------------
 # BUILDER LAYER
 # ----------------------------------------------
 FROM mygolang AS gobuilder
