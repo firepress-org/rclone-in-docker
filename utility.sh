@@ -170,14 +170,14 @@ function master {
     # if a tag is provided
     # it means we want to draft our CHANGELOG as well
     if [[ ! -z "${input_2}" ]] && [[ "${input_2}" != not-set ]]; then
-      draft
+      App_Draft
     fi
 
   else
     my_message="You must push your commit(s) before doing a rebase." App_Pink
   fi
 }
-function draft {
+function App_Draft {
 # think draft your release in the changelog
 # was called cl_update
 
