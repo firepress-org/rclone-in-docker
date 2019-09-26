@@ -24,38 +24,46 @@ jobs:
 
       - name: Define variables
         run: |
+          # Hard coded variable
           echo "Dockerfile" > DOCKERFILE_NAME
           #
-          # Logically defined
+          # Logically defined variable from the Dockerfile
           cat $(cat DOCKERFILE_NAME) | grep DOCKERHUB_USER= | head -n 1 | grep -o '".*"' | sed 's/"//g' > DOCKERHUB_USER
           cat $(cat DOCKERFILE_NAME) | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
           cat $(cat DOCKERFILE_NAME) | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
           cat $(cat DOCKERFILE_NAME) | grep GITHUB_ORG= | head -n 1 | grep -o '".*"' | sed 's/"//g' > GITHUB_ORG
           cat $(cat DOCKERFILE_NAME) | grep GITHUB_REGISTRY= | head -n 1 | grep -o '".*"' | sed 's/"//g' > GITHUB_REGISTRY
-          #
-          date -d "-4 hours" "+%Y-%m-%d_%HH%Ms%S" > DATE_IT
+          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DKR_HUB_URL
+          echo "docker.pkg.github.com/$(cat GITHUB_ORG)/$(cat GITHUB_REGISTRY)/$(cat APP_NAME)" > GPR_URL
+          date -d "-4 hours" "+%Y-%m-%d_%HH%Ms%S" > DATE_TIME
           git rev-parse --short HEAD > SHORT_COMMIT_HASH
-          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DOCKER_USER_APP
-          echo "$(cat GITHUB_ORG)/$(cat APP_NAME)" > GITHUB_USER_APP
           #
-          # Tags are logically defined
-          echo "$(cat DOCKER_USER_APP):latest" > TAG_LATEST
-          echo "$(cat DOCKER_USER_APP):stable" > TAG_STABLE
-          echo "$(cat DOCKER_USER_APP):$(cat VERSION)" > TAG_VERSION
-          echo "$(cat DOCKER_USER_APP):$(cat VERSION)_$(cat DATE_IT)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
+          # Four (stable) tags are logically defined
+          echo "$(cat DKR_HUB_URL):latest" > TAG_LATEST
+          echo "$(cat DKR_HUB_URL):stable" > TAG_STABLE
+          echo "$(cat DKR_HUB_URL):$(cat VERSION)" > TAG_VERSION
+          echo "$(cat DKR_HUB_URL):$(cat VERSION)_$(cat DATE_TIME)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE
+          # for Github Package Registry (GPR)
+          echo "$(cat GPR_URL):latest" > TAG_LATEST_GPR
+          echo "$(cat GPR_URL):stable" > TAG_STABLE_GPR
+          echo "$(cat GPR_URL):$(cat VERSION)" > TAG_VERSION_GPR
+          echo "$(cat GPR_URL):$(cat VERSION)_$(cat DATE_TIME)_$(cat SHORT_COMMIT_HASH)" > TAG_BEST_PRACTICE_GPR
 
       - name: Build
         run: |
           # UAT is User Acceptance Testing
           echo "$(cat APP_NAME):uat" > TAG_UAT
           docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_UAT) .
-          #
+          # for Docker hub
           docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_BEST_PRACTICE) .
           docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_VERSION) .
           docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_STABLE) .
           docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_LATEST) .
-          #
-          # build for Github Package Registry (GPR)
+          # for GPR
+          docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_BEST_PRACTICE_GPR) .
+          docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_VERSION_GPR) .
+          docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_STABLE_GPR) .
+          docker build --file $(cat DOCKERFILE_NAME) --tag $(cat TAG_LATEST_GPR) .
 
       - name: Test image with docker-library
         run: |
@@ -71,15 +79,21 @@ jobs:
           echo "$(cat TAG_STABLE) < TAG_STABLE"
           echo "$(cat TAG_LATEST) < TAG_LATEST"
           echo " "
+          echo "$(cat TAG_BEST_PRACTICE_GPR) < TAG_BEST_PRACTICE_GPR"
+          echo "$(cat TAG_VERSION_GPR) < TAG_VERSION_GPR"
+          echo "$(cat TAG_STABLE_GPR) < TAG_STABLE_GPR"
+          echo "$(cat TAG_LATEST_GPR) < TAG_LATEST_GPR"
+          echo " "
           echo "$(cat APP_NAME) < APP_NAME"
           echo "$(cat VERSION) < VERSION"
           echo "$(cat DOCKERFILE_NAME) < DOCKERFILE_NAME"
           echo " "
-          echo "$(cat DATE_IT) < DATE_IT"
+          echo "$(cat DATE_TIME) < DATE_TIME"
           echo "$(cat SHORT_COMMIT_HASH) < SHORT_COMMIT_HASH"
           echo "$(cat DOCKERHUB_USER) < DOCKERHUB_USER"
-          echo "$(cat GITHUB_USER) < GITHUB_USER"
           echo "$(cat GITHUB_ORG) < GITHUB_ORG"
+          echo "$(cat DKR_HUB_URL) < DKR_HUB_URL"
+          echo "$(cat GPR_URL) < GPR_URL"
           echo "$(cat GITHUB_REGISTRY) < GITHUB_REGISTRY"
 
       - name: Logs / docker (inspect, history, version, info), uname
@@ -90,18 +104,21 @@ jobs:
           docker info
           uname -a
 
-      - name: Publish
+      - name: Publish on Docker hub
         run: |
           echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login --username $(cat DOCKERHUB_USER) --password-stdin
           docker push $(cat TAG_LATEST)
           docker push $(cat TAG_STABLE)
           docker push $(cat TAG_VERSION)
           docker push $(cat TAG_BEST_PRACTICE)
-          #
-          # push on Github Package Registry (GPR)
-          # echo "ToDo/ docker build -t docker.pkg.github.com/$(cat GITHUB_ORG)/$(cat GITHUB_REGISTRY)/$(cat TAG_BEST_PRACTICE)"
-          # echo "ToDo/ docker login docker.pkg.github.com -u $(cat GITHUB_USER) -p ${{ secrets.GPR_PASS }}"
-          # echo "ToDo/ docker push docker.pkg.github.com/$(cat GITHUB_ORG)/$(cat GITHUB_REGISTRY)/$(cat TAG_BEST_PRACTICE)"
+
+      - name: Publish on GPR
+        run: |
+          echo ${{ secrets.TOKEN_GPR }} | docker login docker.pkg.github.com --username $(cat GITHUB_ORG) --password-stdin
+          docker push $(cat TAG_LATEST_GPR)
+          docker push $(cat TAG_STABLE_GPR)
+          docker push $(cat TAG_VERSION_GPR)
+          docker push $(cat TAG_BEST_PRACTICE_GPR)
 
   Job2:
     needs: job1
@@ -112,16 +129,16 @@ jobs:
 
       - name: Define variables
         run: |
-          echo "Dockerfile" > DOCKERFILE_NAME  
+          echo "Dockerfile" > DOCKERFILE_NAME
+          echo "devmtl/noti:stable" > IMG_NOTI
           cat $(cat DOCKERFILE_NAME) | grep DOCKERHUB_USER= | head -n 1 | grep -o '".*"' | sed 's/"//g' > DOCKERHUB_USER
           cat $(cat DOCKERFILE_NAME) | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g' > APP_NAME
           cat $(cat DOCKERFILE_NAME) | grep VERSION= | head -n 1 | grep -o '".*"' | sed 's/"//g' > VERSION
           git rev-parse --short HEAD > SHORT_COMMIT_HASH
           echo "$(cat APP_NAME):$(cat VERSION) / $(cat SHORT_COMMIT_HASH)" > NOTI_MESSAGE
-          #
-          # Tags are logically defined
-          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DOCKER_USER_APP
-          echo "$(cat DOCKER_USER_APP):latest" > TAG_LATEST
+          # Tags are logically defined (needed by Aquasec microscanner)
+          echo "$(cat DOCKERHUB_USER)/$(cat APP_NAME)" > DKR_HUB_URL
+          echo "$(cat DKR_HUB_URL):latest" > TAG_LATEST
 
       - name: Push README to dockerhub description
         run: |
@@ -140,20 +157,20 @@ jobs:
             -e NOTI_MESSAGE="$(cat NOTI_MESSAGE)" \
             -e SLACK_CHANNEL="github-actions" \
             -e SLACK_TOKEN_CRON="${{ secrets.TOKEN_SLACK }}" \
-            devmtl/noti:stable sh -c \
-            ' NOTI_SLACK_TOKEN="$SLACK_TOKEN_CRON" \
-              NOTI_SLACK_CHANNEL="$SLACK_CHANNEL" \
-              noti -k -m "$NOTI_MESSAGE" '
+            $(cat IMG_NOTI) sh -c \
+              ' NOTI_SLACK_TOKEN="$SLACK_TOKEN_CRON" \
+                NOTI_SLACK_CHANNEL="$SLACK_CHANNEL" \
+                noti -k -m "$NOTI_MESSAGE" '
 
-      # Added it here is it take in average 4 min to complete.
       - name: Test image with Aquasec microscanner
         run: |
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
+          echo "Takes in average 4 min to complete"
           echo "The build will stop only if it finds a critical issue"
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest \
             -q --exit-code 1 --severity CRITICAL $(cat TAG_LATEST)
 
-      - name: Github Actions ideas to implements
-        run: |
-          echo "see —> https://gist.github.com/pascalandy/4e499b7c42023836a7d207277923fc09"
+      #- name: Github Actions ideas to implements
+      #  run: |
+      #    echo "see —> https://gist.github.com/pascalandy/4e499b7c42023836a7d207277923fc09"
