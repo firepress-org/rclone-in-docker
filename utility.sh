@@ -45,9 +45,7 @@ That takes time!
     'release 1.2.3-r4' (at this point, we are now to edge branch)
 
 USE CASE #3:
-  This text is used as a placeholder. Words that will follow won't make
-  any sense and this is fine. At the moment, the goal is to build a
-  structure for our site.
+  This text is used as a placeholder.
 
 EOF
 }
