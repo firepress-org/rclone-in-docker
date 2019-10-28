@@ -12,6 +12,12 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
+## 1.50.0
+### ⚡️ Updates
+c0cb6fc update utility
+c16353b Updated to version: 1.50.0
+445366b Updated to version: 1.5.0
+
 ## 1.49.3-r2
 ### ⚡️ Updates
 
