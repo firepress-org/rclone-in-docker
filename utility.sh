@@ -16,6 +16,41 @@ set -o pipefail         # Use last non-zero exit code in a pipeline
 # Git
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
+function -h {
+  help
+}
+function help {
+cat << EOF
+USE CASE #1:
+  - We commit some change on (branch) edge
+  - Rebase on master from edge
+  - In CHANGELOG, write a git history of the changes
+  - Git commit with a message
+  - Tag x.x.x this commit
+  - push tag x.x.x
+  - release on Github with the tag x.x.x along a markdown description that points to our CHANGELOG.md
+
+That takes time! 
+
+  First method (2 steps):
+    - 'master 1.2.3-r4' (rebase master from edge).
+    - Review and optionaly, manually edit file CHANGELOG.md
+    - 'release 1.2.3-r4' (at this point, we are now to edge branch)
+
+  Second method (3 steps):
+    'master' (rebase master from edge)
+    'draft 1.2.3-r4' (it injects the latest commit(s) in CHANGELOG.md)
+        Optionaly, manually edit CHANGELOG.md
+    'release 1.2.3-r4' (at this point, we are now to edge branch)
+
+USE CASE #2:
+  This text is used as a placeholder. Words that will follow won't make
+  any sense and this is fine. At the moment, the goal is to build a
+  structure for our site.
+
+EOF
+}
+
 function push {
 # commit all & push all changes
   App_input2_rule
@@ -94,45 +129,7 @@ function sq {
     my_message="You must push your commit(s) before doing a rebase." App_Pink
   fi
 }
-function -h {
-  help
-}
-function help {
-cat << EOF
-USE CASE #1:
-  - We commit some change on edge branch.
-  - Rebase on master from edge
-  - write a git history ofwhat happened with the CHANGELOG
-  - commit with a message
-  - tag 1.2.3-r4 this commit
-  - push tag 1.2.3-r4
-  - release on Github with the tag 1.2.3-r4 along a markdown description that points to our CHANGELOG.md
 
-That takes time! 
-
-  First method (2 steps):
-    'master 1.2.3-r4' (rebase master from edge).
-        Optionaly, manually edit CHANGELOG.md
-    'release 1.2.3-r4' (at this point, we are now to edge branch)
-
-  Second method (3 steps):
-    'master' (rebase master from edge)
-    'draft 1.2.3-r4' (it injects the latest commit(s) in CHANGELOG.md)
-        Optionaly, manually edit CHANGELOG.md
-    'release 1.2.3-r4' (at this point, we are now to edge branch)
-
-USE CASE #2:
-  This text is used as a placeholder. Words that will follow won't make
-  any sense and this is fine. At the moment, the goal is to build a
-  structure for our site.
-
-USE CASE #3:
-  This text is used as a placeholder. Words that will follow won't make
-  any sense and this is fine. At the moment, the goal is to build a
-  structure for our site.
-
-EOF
-}
 function helpbash {
 cat << EOF
 Operator	Description

@@ -112,7 +112,9 @@ jobs:
           docker push $(cat TAG_VERSION)
           docker push $(cat TAG_BEST_PRACTICE)
 
-      - name: Publish on GPR
+      - name: Publish to GPR
+        if: always()
+        # As GPR is in beta, it sometimes does not work as expected
         run: |
           echo ${{ secrets.TOKEN_GPR }} | docker login docker.pkg.github.com --username $(cat GITHUB_ORG) --password-stdin
           docker push $(cat TAG_LATEST_GPR)

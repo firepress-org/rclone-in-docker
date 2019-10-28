@@ -1,7 +1,7 @@
 # Those vars are used broadly outside this Dockerfile
 # Github Action CI and release script (./utility.sh) is consuming these variables.
 
-ARG VERSION="1.49.3"
+ARG VERSION="1.5.0"
 ARG APP_NAME="rclone"
 ARG GIT_PROJECT_NAME="rclone-in-docker"
 #
