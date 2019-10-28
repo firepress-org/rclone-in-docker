@@ -12,17 +12,18 @@ set -o pipefail         # Use last non-zero exit code in a pipeline
 # --- or remove $1, $2, $3 var defintions in @main
 
 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-# Git
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
 function -h {
   help
 }
 function help {
 cat << EOF
+
 USE CASE #1:
-  - We commit some change on (branch) edge
+  Simple version update on the dockerfile
+  - cmd 'version 1.50.1'
+
+USE CASE #2:
+  - We commit (using cmd 'push') some change on (branch) edge
   - Rebase on master from edge
   - In CHANGELOG, write a git history of the changes
   - Git commit with a message
@@ -43,7 +44,7 @@ That takes time!
         Optionaly, manually edit CHANGELOG.md
     'release 1.2.3-r4' (at this point, we are now to edge branch)
 
-USE CASE #2:
+USE CASE #3:
   This text is used as a placeholder. Words that will follow won't make
   any sense and this is fine. At the moment, the goal is to build a
   structure for our site.
@@ -51,39 +52,6 @@ USE CASE #2:
 EOF
 }
 
-function push {
-# commit all & push all changes
-  App_input2_rule
-
-  git status && \
-  git add -A && \
-  git commit -m "${input_2}" && \
-  clear
-  git push
-}
-function log {
-  git --no-pager log --decorate=short --pretty=oneline -n25
-}
-function edge {
-# think rebase edge from master
-
-  if [[ $(git status | grep -c "nothing to commit") == "1" ]]; then
-    echo "good, nothing to commit" | 2>/dev/null
-    git checkout edge
-    git pull origin edge
-    git rebase master
-    git push
-    hash_edge_is=$(git rev-parse --short HEAD)
-    #
-    git checkout master
-    hash_master_is=$(git rev-parse --short HEAD)
-    git checkout edge
-    my_message="Diligence: ${hash_master_is} | ${hash_master_is} (master vs edge should be the same)" App_Blue
-
-  else
-    my_message="You must push your commit(s) before doing a rebase." App_Pink
-  fi
-}
 function version {
 # update the Dockerfile
 # useful the upgrade an app on edge branch
@@ -105,6 +73,39 @@ function version {
   # tag on the latest commit
   # push tag to remote
 }
+
+function push {
+# commit all & push all changes
+  App_input2_rule
+
+  git status && \
+  git add -A && \
+  git commit -m "${input_2}" && \
+  clear
+  git push
+}
+
+function edge {
+# think rebase edge from master
+
+  if [[ $(git status | grep -c "nothing to commit") == "1" ]]; then
+    echo "good, nothing to commit" | 2>/dev/null
+    git checkout edge
+    git pull origin edge
+    git rebase master
+    git push
+    hash_edge_is=$(git rev-parse --short HEAD)
+    #
+    git checkout master
+    hash_master_is=$(git rev-parse --short HEAD)
+    git checkout edge
+    my_message="Diligence: ${hash_master_is} | ${hash_master_is} (master vs edge should be the same)" App_Blue
+
+  else
+    my_message="You must push your commit(s) before doing a rebase." App_Pink
+  fi
+}
+
 function sq {
 # squash
 
@@ -150,6 +151,7 @@ INTEGER1        -lt INTEGER2	INTEGER1 is numerically less than INTEGER2
 
 EOF
 }
+
 function master {
 # think rebase master from edge
 
@@ -174,6 +176,7 @@ function master {
     my_message="You must push your commit(s) before doing a rebase." App_Pink
   fi
 }
+
 function App_Draft {
 # think draft your release in the changelog
 # was called cl_update
@@ -208,6 +211,7 @@ function App_Draft {
   rm ~/temp/tmpfile || true
   my_message="Done! Manually edit your CHANGELOG if needed" App_Blue
 }
+
 function release {
 # push changelog
 # powerfull as it combines: tag + release + edge
@@ -234,6 +238,7 @@ function release {
     my_message="You must be a master branch." App_Pink
   fi
 }
+
 function tag {
 # is a sub fct of release
 # tag
@@ -260,6 +265,7 @@ function tag {
   # tag on the latest commit
   # push tag to remote
 }
+
 function App_release {
 # is a sub fct of release
 
@@ -307,6 +313,7 @@ function App_release {
     my_message="You must be a master branch." App_Pink
   fi
 }
+
 function App_release_check_vars {
   if [[ -z "${first_name_author}" ]]; then
     my_message="ERROR: first_name_author is empty." App_Pink App_Stop
@@ -347,6 +354,14 @@ function release_find_the_latest {
   fi
 }
 
+function which {
+  # list, show which functions are available
+  clear && echo && \
+  cat utility.sh | awk '/function /' | awk '{print $2}' | sort -k2 -n | sed '/App_/d' | sed '/main/d' | sed '/utility/d'
+}
+function log {
+  git --no-pager log --decorate=short --pretty=oneline -n25
+}
 function hash {
   git rev-parse --short HEAD
 }
@@ -424,12 +439,6 @@ function test {
   # git rev-parse --is-inside-work-tree
 
   my_message="Date is: ${date_sec}" App_Blue
-}
-
-function which {
-  # list, show which functions are available
-  clear && echo && \
-  cat utility.sh | awk '/function /' | awk '{print $2}' | sort -k2 -n | sed '/App_/d' | sed '/main/d' | sed '/utility/d'
 }
 
 function App_input2_rule {
