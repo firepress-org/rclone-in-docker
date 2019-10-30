@@ -1,5 +1,7 @@
 # Files
 ############
+.bashcheck.sh
+utility.sh
 test
 .cache
 coverage

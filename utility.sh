@@ -602,6 +602,8 @@ function add_gitignore {
 cat <<EOF > .gitignore_template
 # Files
 ############
+.bashcheck.sh
+utility.sh
 test
 .cache
 coverage
