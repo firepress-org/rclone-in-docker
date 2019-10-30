@@ -8,72 +8,78 @@ set -o errtrace         # Make sure any error trap is inherited
 set -o pipefail         # Use last non-zero exit code in a pipeline
 #set -o xtrace          # Trace the execution of the script (debug)
 #set -o nounset          # Disallow expansion of unset variables
-# --- Find bad variables by using `./utility.sh test two three`, else disable it
+# --- Find bad variables with CMD `./utility.sh test two three`, else disable it
 # --- or remove $1, $2, $3 var defintions in @main
 
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### #
+#
+# Core fct
+#
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### #
+		  #
+		 # #
+		#   #
+function help {
+cat << EOF
+  USE CASE #1:
+    Simple version update on the dockerfile
+    - see CMD version
 
+  USE CASE #2:
+
+  EDGE BRANCH
+    - We commit using CMD 'push' some change on (branch) edge
+    - Rebase on master from edge
+    - In CHANGELOG, write a git history of the changes
+    - Git commit with a message
+
+  MASTER BRANCH
+    - Tag x.x.x this commit
+    - push tag x.x.x
+    - release on Github with the tag x.x.x along a markdown description that points to our CHANGELOG.md
+
+  That takes time! 
+
+    First method (2 steps):
+      - 'master 1.2.3-r4' (rebase master from edge).
+      - Review and optionaly, manually edit file CHANGELOG.md
+      - 'release 1.2.3-r4' (at this point, we are now to edge branch)
+
+    Second method (3 steps):
+      'master' (rebase master from edge)
+      'draft 1.2.3-r4' (it injects the latest commit(s) in CHANGELOG.md)
+          Optionaly, manually edit CHANGELOG.md
+      'release 1.2.3-r4' (at this point, we are now to edge branch)
+EOF
+}
 function -h {
   help
 }
-function help {
-cat << EOF
-
-USE CASE #1:
-  Simple version update on the dockerfile
-  - cmd 'version 1.50.1'
-
-USE CASE #2:
-  - We commit (using cmd 'push') some change on (branch) edge
-  - Rebase on master from edge
-  - In CHANGELOG, write a git history of the changes
-  - Git commit with a message
-  - Tag x.x.x this commit
-  - push tag x.x.x
-  - release on Github with the tag x.x.x along a markdown description that points to our CHANGELOG.md
-
-That takes time! 
-
-  First method (2 steps):
-    - 'master 1.2.3-r4' (rebase master from edge).
-    - Review and optionaly, manually edit file CHANGELOG.md
-    - 'release 1.2.3-r4' (at this point, we are now to edge branch)
-
-  Second method (3 steps):
-    'master' (rebase master from edge)
-    'draft 1.2.3-r4' (it injects the latest commit(s) in CHANGELOG.md)
-        Optionaly, manually edit CHANGELOG.md
-    'release 1.2.3-r4' (at this point, we are now to edge branch)
-
-USE CASE #3:
-  This text is used as a placeholder.
-
-EOF
-}
 
 function version {
-# update the Dockerfile
-# useful the upgrade an app on edge branch
-
-  App_input2_rule
-  tag_version="${input_2}"
-
-  # update tag within the Dockerfile without "-r1" "-r2"
-  ver_in_dockerfile=$(echo $tag_version | sed 's/-r.*//g')
-  sed -i '' "s/^ARG VERSION=.*$/ARG VERSION=\"$ver_in_dockerfile\"/" Dockerfile 
-
-  git add . && \
-  git commit -m "Updated to version: $tag_version" && \
-  git push
-
+# this updates the app's version in our Dockerfile
+# usage: CMD ./utility.sh version 1.50.1
 # what it does:
   # update tag in Dockerfile
   # save the commit
   # tag on the latest commit
   # push tag to remote
+
+  App_input2_rule
+  tag_version="${input_2}"
+
+  # update tag within the Dockerfile without "-r1" "-r2"
+  ver_in_dockerfile=$(echo ${tag_version} | sed 's/-r.*//g')
+  sed -i '' "s/^ARG VERSION=.*$/ARG VERSION=\"${ver_in_dockerfile}\"/" Dockerfile 
+
+  git add . && \
+  git commit -m "Updated to version: ${tag_version}" && \
+  git push
 }
 
 function push {
-# commit all & push all changes
+# push commit all & push all changes
+# usage: CMD ./utility.sh push "Add fct xyz"
   App_input2_rule
 
   git status && \
@@ -83,29 +89,9 @@ function push {
   git push
 }
 
-function edge {
-# think rebase edge from master
-
-  if [[ $(git status | grep -c "nothing to commit") == "1" ]]; then
-    echo "good, nothing to commit" | 2>/dev/null
-    git checkout edge
-    git pull origin edge
-    git rebase master
-    git push
-    hash_edge_is=$(git rev-parse --short HEAD)
-    #
-    git checkout master
-    hash_master_is=$(git rev-parse --short HEAD)
-    git checkout edge
-    my_message="Diligence: ${hash_master_is} | ${hash_master_is} (master vs edge should be the same)" App_Blue
-
-  else
-    my_message="You must push your commit(s) before doing a rebase." App_Pink
-  fi
-}
-
 function sq {
 # squash
+# usage: CMD ./utility.sh sq 3 "Add fct xyz"
 
   App_input2_rule
   App_input3_rule
@@ -129,30 +115,9 @@ function sq {
   fi
 }
 
-function helpbash {
-cat << EOF
-Operator	Description
-! EXPRESSION	  The EXPRESSION is false.
--n STRING	      The length of STRING is greater than zero.
--z STRING	      The lengh of STRING is zero (ie it is empty).
-STRING1         = STRING2	STRING1 is equal to STRING2
-STRING1         != STRING2	STRING1 is not equal to STRING2
-INTEGER1        -eq INTEGER2	INTEGER1 is numerically equal to INTEGER2
-INTEGER1        -gt INTEGER2	INTEGER1 is numerically greater than INTEGER2
-INTEGER1        -lt INTEGER2	INTEGER1 is numerically less than INTEGER2
-    -d FILE	    FILE exists and is a directory.
-    -e FILE	    FILE exists.
-    -r FILE	    FILE exists and the read permission is granted.
-    -s FILE	    FILE exists and it's size is greater than zero (ie. it is not empty).
-    -w FILE	    FILE exists and the write permission is granted.
-    -x FILE	    FILE exists and the execute permission is granted.
-
-EOF
-}
-
 function master {
 # think rebase master from edge
-
+# usage: CMD ./utility.sh master
   if [[ $(git status | grep -c "nothing to commit") == "1" ]]; then
     echo "good, nothing to commit" | 2>/dev/null
     git checkout master
@@ -175,9 +140,186 @@ function master {
   fi
 }
 
+function edge {
+# think rebase edge from master
+# usage: CMD ./utility.sh edge
+
+  if [[ $(git status | grep -c "nothing to commit") == "1" ]]; then
+    echo "good, nothing to commit" | 2>/dev/null
+    git checkout edge
+    git pull origin edge
+    git rebase master
+    git push
+    hash_edge_is=$(git rev-parse --short HEAD)
+    #
+    git checkout master
+    hash_master_is=$(git rev-parse --short HEAD)
+    git checkout edge
+    my_message="Diligence: ${hash_master_is} | ${hash_master_is} (master vs edge should be the same)" App_Blue
+
+  else
+    my_message="You must push your commit(s) before doing a rebase." App_Pink
+  fi
+}
+
+function release {
+# push changelog
+# powerfull as it combines: tag + release + edge
+# usage: CMD ./utility.sh release 1.50.1
+
+  # is expecting a version
+  App_input2_rule
+
+  # Prompt a warning
+  min=1 max=4 message="WARNING: is CHANGELOG.md is updated using /cl_update/"
+  for ACTION in $(seq ${min} ${max}); do
+    echo -e "${col_pink} ${message} ${col_pink}" && sleep 0.4 && clear && \
+    echo -e "${col_blue} ${message} ${col_blue}" && sleep 0.4 && clear
+  done
+
+  currentBranch=$(git rev-parse --abbrev-ref HEAD)
+  if [[ "${currentBranch}" == "master" ]]; then
+    tag_version="${input_2}"
+
+    tag
+    App_release
+    edge
+  else
+    my_message="You must be in the master branch." App_Pink
+  fi
+}
+
+function tag {
+# you should use release as its a sub fct of release
+# usage: CMD ./utility.sh tag 1.50.1
+
+  App_input2_rule
+
+  tag_version="${input_2}"
+
+  # update tag within the Dockerfile without "-r1" "-r2"
+  ver_in_dockerfile=$(echo $tag_version | sed 's/-r.*//g')
+  sed -i '' "s/^ARG VERSION=.*$/ARG VERSION=\"$ver_in_dockerfile\"/" Dockerfile 
+
+  git add . && \
+  git commit -m "Updated to version: $tag_version" && \
+  git push && \
+  sleep 1 && \
+  # push tag
+  git tag ${tag_version} && \
+  git push --tags
+
+# what it does:
+  # update tag in Dockerfile
+  # save the commit
+  # tag on the latest commit
+  # push tag to remote
+}
+
+function release_find_the_latest {
+# buggy tk
+# find the latest release that was pushed on github
+
+  APP_NAME=$(cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g')
+  GITHUB_ORG=$(cat Dockerfile | grep GITHUB_ORG= | head -n 1 | grep -o '".*"' | sed 's/"//g')
+
+  if [[ -z "${APP_NAME}" ]] ; then    #if empty
+    clear
+    my_message="Can't find APP_NAME in the Dockerfile." App_Pink
+    App_Stop
+  elif [[ -z "${GITHUB_ORG}" ]] ; then    #if empty
+    clear
+    my_message="Can't find GITHUB_ORG in the Dockerfile." App_Pink
+    App_Stop
+  else
+
+    my_message=$(curl -s https://api.github.com/repos/${GITHUB_ORG}/${APP_NAME}/releases/latest | \
+      grep tag_name | \
+      awk -F ': "' '{ print $2 }' | \
+      awk -F '",' '{ print $1 }')
+
+    App_Blue
+  fi
+}
+
+function which {
+  # list (show) which CMD (functions) are available
+  clear && echo && \
+  cat utility.sh | awk '/function /' | awk '{print $2}' | sort -k2 -n | sed '/App_/d' | sed '/main/d' | sed '/utility/d'
+}
+
+function log {
+  git --no-pager log --decorate=short --pretty=oneline -n25
+}
+
+function hash {
+  git rev-parse --short HEAD
+}
+
+function stat {
+  git status
+}
+
+function diff {
+  check && echo
+  git diff
+}
+
+function ci {
+  hub ci-status -v $(git rev-parse HEAD)
+}
+
+function helpbash {
+cat << EOF
+  Operator	Description
+  ! EXPRESSION	  The EXPRESSION is false.
+  -n STRING	      The length of STRING is greater than zero.
+  -z STRING	      The lengh of STRING is zero (ie it is empty).
+  STRING1         = STRING2	STRING1 is equal to STRING2
+  STRING1         != STRING2	STRING1 is not equal to STRING2
+  INTEGER1        -eq INTEGER2	INTEGER1 is numerically equal to INTEGER2
+  INTEGER1        -gt INTEGER2	INTEGER1 is numerically greater than INTEGER2
+  INTEGER1        -lt INTEGER2	INTEGER1 is numerically less than INTEGER2
+      -d FILE	    FILE exists and is a directory.
+      -e FILE	    FILE exists.
+      -r FILE	    FILE exists and the read permission is granted.
+      -s FILE	    FILE exists and its size is greater than zero (ie. it is not empty).
+      -w FILE	    FILE exists and the write permission is granted.
+      -x FILE	    FILE exists and the execute permission is granted.
+EOF
+}
+
+function lint {
+  docker_img="redcoolbeans/dockerlint"
+
+  docker run -it --rm \
+    -v $(pwd)/Dockerfile:/Dockerfile:ro \
+    ${docker_img}
+}
+
+function lint_hado_wip {
+# ToDo
+  docker run --rm hadolint/hadolint:v1.16.3-4-gc7f877d hadolint --version && echo;
+
+  docker run --rm -i hadolint/hadolint:v1.16.3-4-gc7f877d hadolint \
+    --ignore DL3000 \
+    - < Dockerfile && \
+
+  echo && \
+  docker run -v `pwd`/Dockerfile:/Dockerfile replicated/dockerfilelint /Dockerfile
+}
+
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### #
+#
+# sub fct
+#
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### #
+		  #
+		 # #
+		#   #
 function App_Draft {
 # think draft your release in the changelog
-# was called cl_update
+# you should use release as it's a sub fct of release
 
   # is expecting a version
   App_input2_rule
@@ -210,63 +352,8 @@ function App_Draft {
   my_message="Done! Manually edit your CHANGELOG if needed" App_Blue
 }
 
-function release {
-# push changelog
-# powerfull as it combines: tag + release + edge
-# was called cl_push
-
-  # is expecting a version
-  App_input2_rule
-
-  # Prompt a warning
-  min=1 max=4 message="WARNING: is CHANGELOG.md is updated using /cl_update/"
-  for ACTION in $(seq ${min} ${max}); do
-    echo -e "${col_pink} ${message} ${col_pink}" && sleep 0.4 && clear && \
-    echo -e "${col_blue} ${message} ${col_blue}" && sleep 0.4 && clear
-  done
-
-  currentBranch=$(git rev-parse --abbrev-ref HEAD)
-  if [[ "${currentBranch}" == "master" ]]; then
-    tag_version="${input_2}"
-
-    tag
-    App_release
-    edge
-  else
-    my_message="You must be a master branch." App_Pink
-  fi
-}
-
-function tag {
-# is a sub fct of release
-# tag
-
-  App_input2_rule
-
-  tag_version="${input_2}"
-
-  # update tag within the Dockerfile without "-r1" "-r2"
-  ver_in_dockerfile=$(echo $tag_version | sed 's/-r.*//g')
-  sed -i '' "s/^ARG VERSION=.*$/ARG VERSION=\"$ver_in_dockerfile\"/" Dockerfile 
-
-  git add . && \
-  git commit -m "Updated to version: $tag_version" && \
-  git push && \
-  sleep 1 && \
-  # push tag
-  git tag ${tag_version} && \
-  git push --tags
-
-# what it does:
-  # update tag in Dockerfile
-  # save the commit
-  # tag on the latest commit
-  # push tag to remote
-}
-
 function App_release {
-# is a sub fct of release
-
+# it's a sub fct of release
 # ensure that 'version' has tag the latest commit
 # then, release on github
 
@@ -331,83 +418,9 @@ function App_release_check_vars {
     my_message="ERROR: release_message3 is empty." App_Pink App_Stop
   fi
 }
-function release_find_the_latest {
-# find the latest release that was pushed on github
-
-  APP_NAME=$(cat Dockerfile | grep APP_NAME= | head -n 1 | grep -o '".*"' | sed 's/"//g')
-  GITHUB_ORG=$(cat Dockerfile | grep GITHUB_ORG= | head -n 1 | grep -o '".*"' | sed 's/"//g')
-
-  if [[ -z "${APP_NAME}" ]] && [[ -z "${GITHUB_ORG}" ]] ; then    #if empty
-    clear
-    my_message="Can't find APP_NAME and/or GITHUB_ORG in the Dockerfile." App_Pink
-    App_Stop
-  else
-
-    my_message=$(curl -s https://api.github.com/repos/${GITHUB_ORG}/${APP_NAME}/releases/latest | \
-      grep tag_name | \
-      awk -F ': "' '{ print $2 }' | \
-      awk -F '",' '{ print $1 }')
-
-    App_Blue
-  fi
-}
-
-function which {
-  # list, show which functions are available
-  clear && echo && \
-  cat utility.sh | awk '/function /' | awk '{print $2}' | sort -k2 -n | sed '/App_/d' | sed '/main/d' | sed '/utility/d'
-}
-function log {
-  git --no-pager log --decorate=short --pretty=oneline -n25
-}
-function hash {
-  git rev-parse --short HEAD
-}
-function outmaster {
-  git checkout master
-}
-function outedge {
-  git checkout edge
-}
-function stat {
-  git status
-}
-function diff {
-  check && echo
-  git diff
-}
-function ci {
-  hub ci-status -v $(git rev-parse HEAD)
-}
-
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-# DOCKER
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-function lint {
-  docker_img="redcoolbeans/dockerlint"
-
-  docker run -it --rm \
-    -v $(pwd)/Dockerfile:/Dockerfile:ro \
-    ${docker_img}
-}
-function lint_hado_wip {
-# ToDo
-  docker run --rm hadolint/hadolint:v1.16.3-4-gc7f877d hadolint --version && echo;
-
-  docker run --rm -i hadolint/hadolint:v1.16.3-4-gc7f877d hadolint \
-    --ignore DL3000 \
-    - < Dockerfile && \
-
-  echo && \
-  docker run -v `pwd`/Dockerfile:/Dockerfile replicated/dockerfilelint /Dockerfile
-}
-
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-# OTHER
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 function test {
-# uat, idempotent bash script
+# test our script & fct. Idempotent bash script
 
   echo "\$1 is now ${input_1}"
   echo "\$2 is now ${input_2}"
@@ -439,6 +452,25 @@ function test {
   my_message="Date is: ${date_sec}" App_Blue
 }
 
+function example_array {
+  arr=( "hello" "world" "three" )
+  
+  for i in "${arr[@]}"; do
+    echo ${i}
+  done
+}
+
+function example_figlet {
+  docker_image="devmtl/figlet:1.0"
+  message="Hey figlet"
+
+  App_figlet
+}
+
+function App_figlet {
+  docker run --rm ${docker_image} ${message}
+}
+
 function App_input2_rule {
 # ensure the second attribute is not empty to continue
   if [[ "${input_2}" == "not-set" ]]; then
@@ -446,6 +478,7 @@ function App_input2_rule {
     App_Stop
   fi
 }
+
 function App_input3_rule {
 # ensure the third attribute is not empty to continue
   if [[ "${input_3}" == "not-set" ]]; then
@@ -454,19 +487,19 @@ function App_input3_rule {
   fi
 }
 
-function example_array {
-  arr=( "hello" "world" "three" )
-  
-  for i in "${arr[@]}"; do
-    echo ${i}
-  done
+function App_Stop {
+  my_message="Exit 1. Bye bye." App_Pink && sleep 1 && \
+  echo && exit 1
 }
-function example_figlet {
-  docker_image="devmtl/figlet:1.0"
-  message="Hey figlet"
 
-  docker run --rm ${docker_image} ${message}
-}
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### #
+#
+# utilities
+#
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### #
+		  #
+		 # #
+		#   #
 function passgen {
   grp1=$(openssl rand -base64 32 | sed 's/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz]//g' | cut -c11-14) && \
   grp2=$(openssl rand -base64 32 | sed 's/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz]//g' | cut -c2-25) && \
@@ -474,6 +507,7 @@ function passgen {
   clear && \
   echo "${grp1}_${grp2}_${grp3}"
 }
+
 function passgen_long {
   grp1=$(openssl rand -base64 32 | sed 's/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz]//g' | cut -c11-14) && \
   grp2=$(openssl rand -base64 48 | sed 's/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz]//g' | cut -c2-50) && \
@@ -481,6 +515,7 @@ function passgen_long {
   clear && \
   echo "${grp1}_${grp2}_${grp3}"
 }
+
 function add_license {
 # add changelog
 
@@ -498,6 +533,7 @@ Basically, you have to credit the author AND keep the code free and open source.
 
 EOF
 }
+
 function add_changelog {
 # add changelog
 
@@ -522,6 +558,7 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 EOF
 }
+
 function add_dockerignore {
 # add dockerignore
 
@@ -535,6 +572,7 @@ npm-debug
 
 EOF
 }
+
 function add_dockerfile {
 # add changelog
 
@@ -668,11 +706,6 @@ TheVolumeSettingsFolder
 .FBCLockFolder
 
 EOF
-}
-
-function App_Stop {
-  my_message="Exit 1. Bye bye." App_Pink && sleep 1 && \
-  echo && exit 1
 }
 
 function App_DefineVariables {
