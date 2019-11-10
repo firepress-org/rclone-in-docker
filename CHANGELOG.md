@@ -12,6 +12,14 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
+## 1.50.1
+### ⚡️ Updates
+784bb75 Updated to version: 1.50.1
+c5ac0b9 remove utility
+7e3a594 add utility to gitignore
+d4ec82f major update to utility
+8686ecf minor utility updates
+
 ## 1.50.0
 ### ⚡️ Updates
 c0cb6fc update utility
