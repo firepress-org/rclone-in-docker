@@ -68,6 +68,8 @@ jobs:
       - name: Test image with docker-library
         run: |
           git clone --depth 1 https://github.com/docker-library/official-images.git official-images
+          # override config.sh. Why: 1) UTC timezone 2) ghost-basic is configure to check the commit between the image of the official docker image of Ghost.
+          cp ./test/config.sh official-images/test/config.sh
           official-images/test/run.sh $(cat TAG_UAT)
 
       - name: Logs / All tags & variables
@@ -168,10 +170,8 @@ jobs:
         run: |
           wget --retry-connrefused --waitretry=1 --read-timeout=5 --timeout=5 --tries=10 https://raw.githubusercontent.com/lukebond/microscanner-wrapper/master/scan.sh && chmod +x scan.sh
           #
-          echo "Takes in average 4 min to complete"
-          echo "The build will stop only if it finds a critical issue"
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest \
-            -q --exit-code 1 --severity CRITICAL $(cat TAG_LATEST)
+            --exit-code 0 $(cat TAG_LATEST)
 
       #- name: Github Actions ideas to implements
       #  run: |

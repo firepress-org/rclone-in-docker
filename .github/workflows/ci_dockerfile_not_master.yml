@@ -72,6 +72,8 @@ jobs:
       - name: Test image with docker-library
         run: |
           git clone --depth 1 https://github.com/docker-library/official-images.git official-images
+          # override config.sh. Why: 1) UTC timezone 2) ghost-basic is configure to check the commit between the image of the official docker image of Ghost.
+          cp ./test/config.sh official-images/test/config.sh
           official-images/test/run.sh $(cat TAG_UAT)
 
       - name: Logs / All tags & variables
