@@ -12,6 +12,11 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
+## 1.51.0
+### ⚡️ Updates
+- 463060d update to rclone 1.51.0
+- 71f4167 remove older README
+
 ## 1.50.1
 ### ⚡️ Updates
 784bb75 Updated to version: 1.50.1
