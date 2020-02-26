@@ -2,7 +2,7 @@
 # Github Action CI and release script (./utility.sh) is consuming these variables.
 
 ARG VERSION="1.51.0"
-ARG RELEASE="1.51.0"
+ARG RELEASE="1.51.0-r1"
 ARG APP_NAME="rclone"
 ARG GITHUB_USER="firepress"
 
