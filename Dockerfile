@@ -2,8 +2,10 @@
 # Github Action CI and release script (./utility.sh) is consuming these variables.
 
 ARG VERSION="1.51.0"
+ARG RELEASE="1.51.0"
 ARG APP_NAME="rclone"
-ARG GIT_PROJECT_NAME="rclone-in-docker"
+ARG GITHUB_USER="firepress"
+
 #
 ARG ALPINE_VERSION="3.10"
 ARG USER="onfire"
