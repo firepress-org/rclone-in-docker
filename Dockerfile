@@ -6,7 +6,7 @@ ARG RELEASE="1.51.0-r1"
 ARG APP_NAME="rclone"
 ARG GITHUB_USER="firepress-org"
 #
-ARG ALPINE_VERSION="3.10"
+ARG ALPINE_VERSION="3.11"
 #
 ARG DOCKERHUB_USER="devmtl"
 ARG GITHUB_ORG="firepress-org"
@@ -117,6 +117,6 @@ ENV APP_NAME="${APP_NAME}"
 COPY --from=gobuilder /usr/local/bin/"${APP_NAME}" /usr/local/bin/"${APP_NAME}"
 
 WORKDIR /usr/local/bin
-VOLUME [ "/home/onfire/.config/rclone", "/data" ]
+VOLUME [ "/root/.config/rclone", "/data" ]
 ENTRYPOINT [ "/sbin/tini", "--" ]
 CMD [ "rclone", "--version" ]
