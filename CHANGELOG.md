@@ -12,6 +12,23 @@ Based on this [template](https://gist.github.com/pascalandy/af709db02d3fe132a3e6
 
 # Releases
 
+## 1.51.0-r1 (2020-02-26)
+### ⚡️ Updates
+- [241684b](https://github.com/firepress-org/rclone/commit/241684b) Update to alpine 3.11
+- [7ec0602](https://github.com/firepress-org/rclone/commit/7ec0602) REMOVE custom user
+- [b207e33](https://github.com/firepress-org/rclone/commit/b207e33) Update rclone to version 1.51.0-r1 /Dockerfile
+- [716401a](https://github.com/firepress-org/rclone/commit/716401a) Add flag release
+- [5554715](https://github.com/firepress-org/rclone/commit/5554715) gitignore / rm test dir
+- [07dbab4](https://github.com/firepress-org/rclone/commit/07dbab4) improve yml for CI
+- [36ed0c1](https://github.com/firepress-org/rclone/commit/36ed0c1) Merge branch 'master' into edge
+- [3f96161](https://github.com/firepress-org/rclone/commit/3f96161) update rclone to 1.51.0 /squash
+- [8b5f11e](https://github.com/firepress-org/rclone/commit/8b5f11e) update changelog
+- [463060d](https://github.com/firepress-org/rclone/commit/463060d) update to rclone 1.51.0
+- [71f4167](https://github.com/firepress-org/rclone/commit/71f4167) remove older README
+
+### 🔍 Compare
+- ... with previous release: [ <> 1.51.0-r1](https://github.com/firepress-org/rclone/compare/...1.51.0-r1)
+
 ## 1.51.0
 ### ⚡️ Updates
 - 463060d update to rclone 1.51.0
