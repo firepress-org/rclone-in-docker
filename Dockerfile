@@ -1,12 +1,12 @@
 # Those vars are used broadly outside this Dockerfile
 # Github Action CI and release script (./utility.sh) is consuming these variables.
 
-ARG VERSION="1.51.0"
-ARG RELEASE="1.51.0-r1"
+ARG VERSION="1.52.3"
+ARG RELEASE="1.52.3-r0"
 ARG APP_NAME="rclone"
 ARG GITHUB_USER="firepress-org"
 #
-ARG ALPINE_VERSION="3.11"
+ARG ALPINE_VERSION="3.12"
 #
 ARG DOCKERHUB_USER="devmtl"
 ARG GITHUB_ORG="firepress-org"
